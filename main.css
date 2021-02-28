@@ -137,3 +137,11 @@ a {
   background-repeat: no-repeat;
   opacity: 0.5;
 }
+
+..imgleft {
+background-color: transparent;
+color: #708090;
+font-size: 90%;
+padding: 1em;
+text-align: center;
+}
