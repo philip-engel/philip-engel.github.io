@@ -129,7 +129,6 @@ body {
 
 .watermarked {
   background-image: url("vert_cyl.png");
-  position: relative;
-  left: 30px;
+  background-position: center;
   opacity: 0.5;
 }
