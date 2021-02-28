@@ -126,3 +126,22 @@ body {
 #links {
     padding: 10px; 
 }
+
+.watermark {
+  width: 300px;
+  height: 100px;
+  display: block;
+  position: relative;
+}
+
+.watermark::after {
+  content: "";
+ background:url(vert_cyl.png);
+  opacity: 0.2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: -1;   
+}
