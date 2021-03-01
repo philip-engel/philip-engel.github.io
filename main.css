@@ -1,22 +1,3 @@
-
-/* Global definitions */
-
-/* 
-font-family-sans-serif:
-font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
-
-font-family-serif:
-font-family: 'BitStream Vera Serif', Georgia, 'Times New Roman', Times, serif;
-
- */
-
-/* 
-background: white;
-shadow: #ffffff;
-border: #001100;
- */
-
-
 a {
     text-decoration: underline;
     color: blue;
@@ -30,41 +11,6 @@ a {
     font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
 }
 
-
-.subtitle {
-    font-size: 16px;
-    font-family: 'BitStream Vera Serif Bold', Georgia, 'Times New Roman', Times, serif;
-}
-
-.boxtitle {
-    padding: 2px 1em 2px 1em;
-    width: 12em;
-    border: 1px solid #001100;
-    background: #F7F7F7;
-    color: #990000;
-    font-size: 19px;
-    font-family: 'BitStream Vera Serif Bold', Georgia, 'Times New Roman', Times, serif;
-}
-
-.nameboxtitle {
-
-    width: 12em;
-    border: 1px solid #001100;
-    background: #F7F7F7;
-    color: #990000;
-    font-size: 19px;
-    font-family: 'BitStream Vera Serif Bold', Georgia, 'Times New Roman', Times, serif;
-}
-
-.boxtitle2 {
-    padding: 2px 1em 2px 1em;
-    width: 12em;
-    border: 1px solid #001100;
-    background: #F7F7F7;
-    color: #990000;
-    font-size: 19px;
-    font-family: 'BitStream Vera Serif Bold', Georgia, 'Times New Roman', Times, serif;
-}
 
 
 .address {
@@ -80,12 +26,36 @@ a {
 .padding {
     padding: 10px;
 }
+  
+h3 {
+  margin-left: 5px;
+}
 
 
-/* IDs */
+.content {
+    position: relative; 
+    z-index: 2;
+    }
+
+#main{
+    position: relative;
+    z-index: 1;
+    }
+
+.myDiv:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: url(test.jpg) center center;
+    opacity: .4;
+}
 
 #main {
-    border: 1px solid #001100;
+    border: 3px solid #001100;
     align: center;
     width: 80%;
     margin-top: 5px;
@@ -93,7 +63,13 @@ a {
     margin-right: auto;
     font-size: 14px;
     font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+	background: linear-gradient(0deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url("vert_cyl.png");
+	background-repeat: no-repeat;
+	background-position: center bottom; 
+	background-size: contain;
 }
+
+
 
 #top-banner {
     background: #F7F7F7;
@@ -105,8 +81,6 @@ a {
     text-align: center;
 }
 
-#main-content {
-}
 
 #bodytext {
     padding: 10px;
@@ -121,27 +95,4 @@ a {
 
 #links {
     padding: 10px; 
-}
-
-.watermarked {
-  position: relative;
-}
-
-.watermarked:after {
-  content: "";
-  display: block;
-  width: 100%;
-  height: 100%;
-  position: center;
-  background-image: url("vert_cyl.png");
-  background-repeat: no-repeat;
-  opacity: 0.5;
-}
-
-..imgleft {
-background-color: transparent;
-color: #708090;
-font-size: 90%;
-padding: 1em;
-text-align: center;
 }
