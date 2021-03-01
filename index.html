@@ -40,16 +40,55 @@ p.c {
 .div_show
 {
 display:block;
-margin:5px;
+margin-top:5px;
+margin-left:5px;
+margin-bottom:5px;
+margin-right:80px;
 padding:8px;
 background:#EFF5E0;
 border:solid 1px #c3c3c3;
+
 }
 .div_hide
 {
 display:none;
 }
 </style>
+
+<script language="javaScript">
+function showHideText1()
+{
+if (document.getElementById("div_text1").className == "div_hide")
+{
+document.getElementById("div_text1").className = "div_show";
+document.getElementById("my_text1").innerText = "[-]";
+}
+else
+{
+
+document.getElementById("div_text1").className = "div_hide";
+document.getElementById("my_text1").innerText = "[+]";
+}
+}
+</script>
+
+<script language="javaScript">
+function showHideText2()
+{
+if (document.getElementById("div_text2").className == "div_hide")
+{
+document.getElementById("div_text2").className = "div_show";
+document.getElementById("my_text2").innerText = "[-]";
+}
+else
+{
+
+document.getElementById("div_text2").className = "div_hide";
+document.getElementById("my_text2").innerText = "[+]";
+}
+}
+</script>
+
 <script language="javaScript">
 function showHideText3()
 {
@@ -221,7 +260,8 @@ document.getElementById("my_text12").innerText = "[+]";
 }
 }
 </script>
-  
+
+
 <script language="javaScript">
 function showHideText13()
 {
@@ -310,6 +350,7 @@ function toggle(abs_tr) {
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Athens, GA <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <i>Email: philip dot engel at uga dot edu </i><br>
+<br>
 
 
 I am assistant professor at University of Georgia. 
@@ -317,29 +358,25 @@ I was previously at Harvard as an NSF postdoc, and did my
 PhD with Robert Friedman at Columbia. 
 I love talking about math and
 meeting new people, so please drop by my office if you feel
-like chatting. Thanks for visiting! <br>
+like chatting. Thanks for visiting! <br><br>
 
 My research is in low-dimensional
 algebraic geometry, especially degenerations of surfaces. I'm also
 fascinated by tilings and have thought a bit about Hurwitz theory.
 </div>
-	
-<hr>
-	
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<h3> Publications and Preprints </h3>
-	
-<div class="watermarked">
-</div>
-	
+
+<h3> Publications and Preprints </h3>
+
 <ul>
 <li><a href="https://arxiv.org/abs/2101.12186">
 Compact moduli of K3 surfaces</a> (with Valery Alexeev).
 
-<ul><b>Submitted</b>, 2021. <a id="my_text10" href="javaScript:showHideText10()">[+]</a>
+<ul><b>Submitted</b>, 2021. <a id="my_text9" href="javaScript:showHideText9()">[+]</a>
 </ul>
 <ul>
 
-<div id="div_text10" class="div_hide">
+
+<div id="div_text9" class="div_hide">
 <span style="font-size:0.99em">
 In this paper, we resolve a long-standing open problem concerning the compactification
 of moduli of K3 surfaces, by proving that there are (semi)toroidal modular compactifications
@@ -353,16 +390,17 @@ for all degrees 2d. </span>
 </div>
 </ul></br>
 
+
 <li><a href="https://arxiv.org/abs/2002.07127">
 Compactifications of moduli of elliptic K3 surfaces: stable pair and toroidal</a> (
 with Valery Alexeev and Alan Thompson).
 
-<ul><b>Submitted</b>, 2020. <a id="my_text9" href="javaScript:showHideText9()">[+]</a>
+<ul><b>Submitted</b>, 2020. <a id="my_text8" href="javaScript:showHideText8()">[+]</a>
 
 </ul>
 <ul>
 
-<div id="div_text9" class="div_hide">
+<div id="div_text8" class="div_hide">
 <span style="font-size:0.99em">
 We study the stable pair compactification of elliptic K3 moduli associated to the
 section plus the sum of the singular fibers. We prove that the normalization of this
@@ -379,10 +417,10 @@ Contribution of one-cylinder square-tiled surfaces to Masur-Veech volumes</a>,
 (with Vincent Delecroix, Elise Goujard, Peter Zograf, and Anton Zorich).
 
 </br><ul><b>Asterisque </b> 415: 223-274, 2020.
-<a id="my_text8" href="javaScript:showHideText8()">[+]</a>  <br />
+<a id="my_text7" href="javaScript:showHideText7()">[+]</a>  <br />
 </ul><ul>
 
-<div id="div_text8" class="div_hide">
+<div id="div_text7" class="div_hide">
 <span style="font-size:0.99em">In the moduli space of abelian differentials,
 there is an equidistributed (with respect to the Masur-Veech volume form)
 subset formed by square-tiled surfaces. This paper studies
@@ -401,10 +439,10 @@ compactification of moduli of K3 surfaces of degree 2</a>
 
 
 </br><ul><b>Submitted.</b> 2019.
-<a id="my_text5" href="javaScript:showHideText5()">[+]</a></ul>
+<a id="my_text6" href="javaScript:showHideText6()">[+]</a></ul>
 
 <ul>
-<div id="div_text5" class="div_hide">
+<div id="div_text6" class="div_hide">
 <span style="font-size:0.99em">
 A stable pair compactification of the moduli space of
 K3 surfaces can be constructed by choosing canonically
@@ -424,11 +462,11 @@ which fiber of the boundary.
 <li> <a href="https://arxiv.org/abs/1702.02614">The number of
 convex tilings of the sphere by triangles, squares, or hexagons</a> (with Peter Smillie).
 
-</br><ul><b>Geometry and Topology</b>, Vol. 22: 2839–2864, 2018.
-  <a id="my_text13" href="javaScript:showHideText13()">[+]</a></ul>
+</br><ul><b>Geometry and Topology</b>, Vol. 22: 2839-2864, 2018.
+  <a id="my_text5" href="javaScript:showHideText5()">[+]</a></ul>
 
 <ul>
-<div id="div_text13" class="div_hide">
+<div id="div_text5" class="div_hide">
 <span style="font-size:0.99em">
 A <i> buckyball </i> is a spherical carbon molecule whose rings have length
 6 or less. We give a formula for the number of such combinatorial arrangements
@@ -445,10 +483,10 @@ then integrate the Siegel theta correspondence for the corresponding symmetric s
 <li><a href="https://arxiv.org/abs/1706.06738">Hurwitz theory of elliptic orbifolds, I</a>.
 
 </br><ul>To appear in <b>Geometry and Topology</b>, 2018.
-<a id="my_text2" href="javaScript:showHideText2()">[+]</a></ul>
+<a id="my_text4" href="javaScript:showHideText4()">[+]</a></ul>
 
 <ul>
-<div id="div_text2" class="div_hide">
+<div id="div_text4" class="div_hide">
 <span style="font-size:0.99em">
 This paper generalizes my work with Peter Smillie to higher genera.
 How many triangulations of a genus g surface are there
@@ -489,10 +527,10 @@ cyclically rotates the N tensor factors.
 rational double point adjacencies for cusp singularities</a> (with Robert Friedman).
  
 </br><ul> To appear in <b>Journal of Differential Geometry</b>, 2016.
-  <a id="my_text14" href="javaScript:showHideText14()">[+]</a></ul>
+  <a id="my_text2" href="javaScript:showHideText2()">[+]</a></ul>
 
 <ul>
-<div id="div_text14" class="div_hide">
+<div id="div_text2" class="div_hide">
 <span style="font-size:0.99em"> This paper explores smoothings 
 of cusp singularities further. We show that the number of smoothing 
 components is at least the number of deformation types of anticanonical
@@ -509,10 +547,10 @@ singularity to a rational double point configuration.
 A proof of Looijenga&#39;s conjecture via integral-affine geometry</a>.
  
 </br><ul><b>Journal of Differential Geometry </b> Vol. 109(3): 467-495, 2018.
-  <a id="my_text15" href="javaScript:showHideText15()">[+]</a></ul>
+  <a id="my_text1" href="javaScript:showHideText1()">[+]</a></ul>
 
 <ul>
-<div id="div_text15" class="div_hide">
+<div id="div_text1" class="div_hide">
 <span style="font-size:0.99em"> A cusp singularity is a surface singularity
 whose minimal resolution is a cycle of rational curves. These singularities
 come in dual pairs. In 1981, Looijenga proved that if a cusp singularity is
@@ -522,11 +560,10 @@ of Looijenga's cusp conjecture using surgeries on integral-affine surfaces.
 </span>
 </div>
 </ul></ul>
-</br>
 
 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <h3> Selected Conference Talks</h3>
+ <h3> Selected Conference Talks</h3>
 	
 <ul>
 	<li>
@@ -566,15 +603,15 @@ of Looijenga's cusp conjecture using surgeries on integral-affine surfaces.
 			IAS thematic year on topology of algebraic varieties</a>, Fall 2014</li>
 </ul>
 								       
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <h3> Notes for Teaching</h3>
+<h3> Notes for Teaching</h3>
 								       
 <ul>
 	<li>
-		<a href="philip-engel.github.io/4manifolds.pdf">
+		<a href="4manifolds.pdf">
 		Notes on 4-manifolds</a> (Spring 2021)</li>
 </ul>
-							       
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <h3> Links </h3>
+
+<h3> Links </h3>
 <ul>
 	<li>
 		My Hypocrite Reader article on
@@ -586,5 +623,7 @@ of Looijenga's cusp conjecture using surgeries on integral-affine surfaces.
 		My Hypocrite Reader article on
 		<a href="http://hypocritereader.com/9/mathematical-abstraction">the integers.</a></li>
 </ul>
+
+</div>
 
 </html>
