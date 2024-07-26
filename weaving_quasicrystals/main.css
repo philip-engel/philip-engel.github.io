@@ -1,0 +1,76 @@
+a {
+    text-decoration: underline;
+    color: blue;
+}
+
+
+/* classes */
+
+.maintext {
+    font-size: 14px;
+    font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+}
+
+
+
+.address {
+    margin-left: 15px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-right: 15px;
+    border-bottom: 1px solid #001100;
+    padding: 5px;    
+    line-height: 1.5;
+}
+
+.padding {
+    padding: 10px;
+}
+  
+h3 {
+  margin-left: 5px;
+}
+
+
+#main {
+    border: 3px solid #001100;
+    align: center;
+    width: 80%;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 14px;
+    font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+	background: linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url("vert_cyl.png");
+	background-repeat: no-repeat;
+	background-position: center bottom; 
+	background-size: contain;
+}
+
+
+
+#top-banner {
+    background: #F7F7F7;
+    padding: 5px;
+    border-bottom: 1px solid #001100;
+    font-size: 25px;
+    color: #990000;
+    font-family: 'BitStream Vera Serif Bold', Georgia, 'Times New Roman', Times, serif;
+    text-align: center;
+}
+
+
+#bodytext {
+    padding: 10px;
+}
+
+#side {
+    padding: 10px;
+    float: right;
+    width: 260px;
+    background: #ffffff;
+}
+
+#links {
+    padding: 10px; 
+}
