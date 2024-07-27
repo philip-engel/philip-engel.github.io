@@ -41,7 +41,7 @@ h3 {
     margin-right: auto;
     font-size: 14px;
     font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
-	background: linear-gradient(0deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.7)), url("long_piece_part_4.png");
+	background: linear-gradient(0deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.4)), url("long_piece_part_4.png");
 	background-repeat: no-repeat;
 	background-position: center top; 
 	background-size: contain;
