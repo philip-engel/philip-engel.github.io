@@ -11,6 +11,9 @@ a {
     font-family: 'BitStream Vera Sans', 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
 }
 
+p {
+  margin: 35px;
+}
 
 
 .address {
