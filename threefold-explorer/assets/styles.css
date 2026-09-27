@@ -88,6 +88,7 @@ input:focus, select:focus, button:focus-visible, summary:focus-visible { outline
 .height-matrix td { padding: 2px 8px; text-align: center; }
 .inline-result { margin-top: 18px; padding: 12px 15px; background: #eaf7f1; color: #205f49; border: 1px solid #b9dfd0; border-radius: 9px; }
 .inline-result.pending { background: #fff7df; color: #755500; border-color: #ead28a; }
+.inline-result.error { background: #fff0f0; color: #8d2929; border-color: #e6b8b8; }
 .degree-meter { width: fit-content; display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; color: var(--muted); }
 .degree-meter strong { color: var(--ink); font-size: 1.35rem; }
 .degree-arrow { color: var(--blue); }

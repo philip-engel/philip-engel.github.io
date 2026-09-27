@@ -178,7 +178,7 @@
     document.querySelectorAll(".weight-input").forEach((input) => input.addEventListener("input", updateDegree));
     updateDegree();
     $("#pair-summary").innerHTML = `Pairing ⟨P,Q⟩ = <b>${pair.pairing}</b>. Q satisfies every local narrowness condition.`;
-    $("#pair-summary").classList.remove("pending");
+    $("#pair-summary").classList.remove("pending", "error");
     $("#pair-summary").hidden = false;
     lock("#linearization-step", false);
     lock("#logs-step", true);
@@ -190,7 +190,26 @@
     state.pair = null;
     state.logSchema = null;
     $("#pair-summary").textContent = "P or Q changed. Press “Check sections” to recompute ⟨P,Q⟩.";
+    $("#pair-summary").classList.remove("error");
     $("#pair-summary").classList.add("pending");
+    $("#pair-summary").hidden = false;
+    $("#degree-required").textContent = "—";
+    $("#linearization-row").innerHTML = "";
+    $("#log-row").innerHTML = "";
+    lock("#linearization-step", true);
+    lock("#logs-step", true);
+    $("#results").hidden = true;
+  }
+
+  function showSectionError(error) {
+    state.pair = null;
+    state.logSchema = null;
+    const narrownessFailure = /narrow/i.test(error.message);
+    $("#pair-summary").textContent = narrownessFailure
+      ? "Q does not satisfy the narrowness conditions shown above. The current topology computation requires Q to be globally narrow."
+      : error.message;
+    $("#pair-summary").classList.remove("pending");
+    $("#pair-summary").classList.add("error");
     $("#pair-summary").hidden = false;
     $("#degree-required").textContent = "—";
     $("#linearization-row").innerHTML = "";
@@ -327,7 +346,7 @@
   $("#load-example").addEventListener("click", loadExample);
   $("#sections-form").addEventListener("submit", async (event) => {
     event.preventDefault(); notice("");
-    try { await checkSections(); } catch (error) { notice(error.message, true); }
+    try { await checkSections(); } catch (error) { showSectionError(error); }
   });
   $("#p-vector").addEventListener("input", invalidatePairing);
   $("#q-vector").addEventListener("input", invalidatePairing);
