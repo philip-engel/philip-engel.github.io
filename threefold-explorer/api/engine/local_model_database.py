@@ -391,6 +391,8 @@ def prepare_database_mv(data, *, database=None, resolution='minimal', components
         rows.append(dict(index=index, type=site['type'], model_id=identity,
                          capabilities=model_capabilities(record) if record else {},
                          missing=list(dict.fromkeys(missing)), selection=selection,
+                         geometry=record.get('geometry') if record else None,
+                         fiber_multiplicity=(record.get('peripheral') or {}).get('multiplicity') if record else None,
                          binding=binding, attachment=attachment))
     ready = not any(row['missing'] for row in rows)
     result = dict(status='ready' if ready else 'incomplete', ready=ready, sites=rows,
