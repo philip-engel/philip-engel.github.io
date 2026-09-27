@@ -154,9 +154,11 @@
     setBusy(button, true, "Loading…");
     notice("");
     try {
+      const osEntry = Number($("#os-entry").value);
+      const entryChanged = state.surface && state.surface.os_entry !== osEntry;
       const surface = await post("/os-entry", {
-        os_entry: Number($("#os-entry").value),
-        profile: profileOverride || $("#profile").value,
+        os_entry: osEntry,
+        profile: profileOverride ?? (entryChanged ? "default" : $("#profile").value),
       });
       renderSurface(surface);
       return surface;
@@ -362,6 +364,7 @@
     event.preventDefault();
     try { await loadSurface(); } catch { /* displayed above */ }
   });
+  $("#os-entry").addEventListener("change", () => loadSurface("default").catch(() => {}));
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
   $("#load-original-example").addEventListener("click", () => loadExample("original"));
   $("#load-split-example").addEventListener("click", () => loadExample("split"));
