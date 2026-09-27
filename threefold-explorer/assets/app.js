@@ -288,6 +288,35 @@
     });
   }
 
+  function kodairaDescription(type) {
+    const fixed = {
+      I0: [1, "1", "a smooth elliptic curve"],
+      I1: [1, "1", "an irreducible nodal rational curve"],
+      II: [1, "1", "an irreducible cuspidal rational curve"],
+      III: [2, "1, 1", "two rational curves tangent at one point (affine A₁)"],
+      IV: [3, "1, 1, 1", "three rational curves meeting at one point (affine A₂)"],
+      "IV*": [7, "1, 1, 1, 2, 2, 2, 3", "rational curves with affine E₆ dual graph"],
+      "III*": [8, "1, 1, 2, 2, 2, 3, 3, 4", "rational curves with affine E₇ dual graph"],
+      "II*": [9, "1, 2, 2, 3, 3, 4, 4, 5, 6", "rational curves with affine E₈ dual graph"],
+    };
+    let data = fixed[type];
+    const multiplicative = /^I(\d+)$/.exec(type);
+    const starred = /^I(\d+)\*$/.exec(type);
+    if (!data && multiplicative) {
+      const n = Number(multiplicative[1]);
+      data = n === 0 ? fixed.I0 : [n, `1 repeated ${n} time${n === 1 ? "" : "s"}`,
+        n === 1 ? "an irreducible nodal rational curve" : `a cycle of ${n} rational curves (affine A${n - 1})`];
+    }
+    if (!data && starred) {
+      const n = Number(starred[1]);
+      data = [n + 5, `1 repeated 4 times; 2 repeated ${n + 1} time${n ? "s" : ""}`,
+        `rational curves with affine D${n + 4} dual graph`];
+    }
+    if (!data) return "Kodaira fiber geometry is not listed in this display.";
+    const [components, multiplicities, shape] = data;
+    return `${components} irreducible component${components === 1 ? "" : "s"}; multiplicities ${multiplicities}; ${shape}.`;
+  }
+
   function renderResult(result) {
     $("#result-title").textContent = result.integral_homology_sphere ? "Integral homology sphere" : "Computed threefold";
     $("#sphere-badge").hidden = !result.S6_for_supplied_smooth_model;
@@ -298,7 +327,10 @@
       `<div class="cohomology-group"><small>H<sup>${group.degree}</sup></small><strong>${group.label}</strong></div>`
     ).join("");
     $("#local-models").innerHTML = result.local_models.map((model) =>
-      `<div class="model-row"><span>${model.index}</span><b>${model.type}</b><span>${model.family.replaceAll("_", " ")}</span></div>`
+      `<div class="model-row"><span>${model.index}</span><b>${model.type}</b><div class="model-copy">
+        <span>${model.family.replaceAll("_", " ")}</span>
+        <small>${kodairaDescription(model.type)}</small>
+      </div></div>`
     ).join("");
     $("#qualification").textContent = result.qualification;
     $("#results").hidden = false;
