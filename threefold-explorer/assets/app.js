@@ -102,15 +102,21 @@
     button.textContent = busy ? busyText : button.dataset.label;
   }
 
-  function heightPairingLabel(surface) {
+  function renderHeightPairing(surface) {
     const rank = surface.mordell_weil.rank;
     const matrix = surface.mordell_weil.height_matrix;
-    if (!rank) return "The height pairing vanishes on this finite MW group.";
-    if (rank === 1) {
-      return `Height pairing on the free coordinate: ⟨p₁,q₁⟩ = (${matrix[0][0]})p₁q₁.`;
+    const panel = $("#height-panel");
+    if (!rank) {
+      $("#height-matrix").innerHTML = "";
+      $("#height-formula").textContent = "The height pairing vanishes because MW has no free part.";
+      panel.hidden = false;
+      return;
     }
-    const rows = matrix.map((row) => `[${row.join(", ")}]`).join(" ");
-    return `Height matrix H = ${rows}; ⟨P,Q⟩ = pᵀHq on the free coordinates.`;
+    $("#height-matrix").innerHTML = `<table class="height-matrix" aria-label="Height pairing matrix"><tbody>${matrix.map((row) =>
+      `<tr>${row.map((entry) => `<td>${entry}</td>`).join("")}</tr>`
+    ).join("")}</tbody></table>`;
+    $("#height-formula").textContent = "⟨P,Q⟩ = pᵀHq on the free coordinates; torsion coordinates do not contribute.";
+    panel.hidden = false;
   }
 
   function renderSurface(surface) {
@@ -126,7 +132,7 @@
     ).join("");
     $("#mw-label").textContent = `MW = ${surface.mordell_weil.label}`;
     $("#tuple-label").textContent = `${surface.mordell_weil.tuple_length} section coordinate${surface.mordell_weil.tuple_length === 1 ? "" : "s"}`;
-    $("#height-label").textContent = heightPairingLabel(surface);
+    renderHeightPairing(surface);
     $("#surface-summary").hidden = false;
     const zeros = Array(surface.mordell_weil.tuple_length).fill(0).join(", ");
     $("#p-vector").placeholder = zeros;
