@@ -381,14 +381,14 @@
     original: {
       osEntry: 49, profile: "III", P: "1", Q: "6", weights: [0, 0, 1],
       vectors: {
-        0: "-2, -2/3, 0, 1/3",
-        1: "9/4, 3/4, 0, -1/4",
+        0: "0, 1/3",
+        1: "0, 1/4",
       },
       label: "The IV* + III + I₁ example is ready. Press “Compute topology”.",
     },
     split: {
       osEntry: 43, profile: "default", P: "1", Q: "2", weights: [0, 0, 0, 1],
-      vectors: { 0: "-3/4, -1/4, 0, 1/4" },
+      vectors: { 0: "0, -1/4" },
       label: "The III* + I₁ + I₁ + I₁ example is ready. Press “Compute topology”.",
     },
   };
@@ -404,7 +404,7 @@
       const fields = document.querySelectorAll(".weight-input");
       preset.weights.forEach((value, index) => { fields[index].value = value; });
       updateDegree();
-      $("#coordinates").value = "ambient";
+      $("#coordinates").value = "invariant";
       await prepareLogs();
       Object.entries(preset.vectors).forEach(([index, vector]) => {
         const card = document.querySelector(`.log-card[data-index="${index}"]`);
