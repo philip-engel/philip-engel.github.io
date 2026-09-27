@@ -102,6 +102,17 @@
     button.textContent = busy ? busyText : button.dataset.label;
   }
 
+  function heightPairingLabel(surface) {
+    const rank = surface.mordell_weil.rank;
+    const matrix = surface.mordell_weil.height_matrix;
+    if (!rank) return "The height pairing vanishes on this finite MW group.";
+    if (rank === 1) {
+      return `Height pairing on the free coordinate: ⟨p₁,q₁⟩ = (${matrix[0][0]})p₁q₁.`;
+    }
+    const rows = matrix.map((row) => `[${row.join(", ")}]`).join(" ");
+    return `Height matrix H = ${rows}; ⟨P,Q⟩ = pᵀHq on the free coordinates.`;
+  }
+
   function renderSurface(surface) {
     state.surface = surface;
     state.pair = null;
@@ -115,6 +126,7 @@
     ).join("");
     $("#mw-label").textContent = `MW = ${surface.mordell_weil.label}`;
     $("#tuple-label").textContent = `${surface.mordell_weil.tuple_length} section coordinate${surface.mordell_weil.tuple_length === 1 ? "" : "s"}`;
+    $("#height-label").textContent = heightPairingLabel(surface);
     $("#surface-summary").hidden = false;
     const zeros = Array(surface.mordell_weil.tuple_length).fill(0).join(", ");
     $("#p-vector").placeholder = zeros;
@@ -160,8 +172,24 @@
     document.querySelectorAll(".weight-input").forEach((input) => input.addEventListener("input", updateDegree));
     updateDegree();
     $("#pair-summary").innerHTML = `Pairing ⟨P,Q⟩ = <b>${pair.pairing}</b>. Q satisfies every local narrowness condition.`;
+    $("#pair-summary").classList.remove("pending");
     $("#pair-summary").hidden = false;
     lock("#linearization-step", false);
+    lock("#logs-step", true);
+    $("#results").hidden = true;
+  }
+
+  function invalidatePairing() {
+    if (!state.surface) return;
+    state.pair = null;
+    state.logSchema = null;
+    $("#pair-summary").textContent = "P or Q changed. Press “Check sections” to recompute ⟨P,Q⟩.";
+    $("#pair-summary").classList.add("pending");
+    $("#pair-summary").hidden = false;
+    $("#degree-required").textContent = "—";
+    $("#linearization-row").innerHTML = "";
+    $("#log-row").innerHTML = "";
+    lock("#linearization-step", true);
     lock("#logs-step", true);
     $("#results").hidden = true;
   }
@@ -295,6 +323,8 @@
     event.preventDefault(); notice("");
     try { await checkSections(); } catch (error) { notice(error.message, true); }
   });
+  $("#p-vector").addEventListener("input", invalidatePairing);
+  $("#q-vector").addEventListener("input", invalidatePairing);
   $("#add-smooth").addEventListener("click", async () => {
     state.smoothSlots += 1;
     try { await checkSections(); } catch (error) { state.smoothSlots -= 1; notice(error.message, true); }
