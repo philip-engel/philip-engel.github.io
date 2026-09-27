@@ -2,6 +2,7 @@ services:
   - type: web
     name: threefold-explorer-api
     runtime: docker
+    plan: free
     dockerfilePath: ./threefold-explorer/api/Dockerfile
     dockerContext: ./threefold-explorer/api
     healthCheckPath: /health
