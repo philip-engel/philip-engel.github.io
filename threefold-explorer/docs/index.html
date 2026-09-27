@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mathematical and computational scope of Threefold Explorer.">
+  <title>Scope · Threefold Explorer</title>
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header class="masthead"><div class="masthead-inner">
+    <a class="site-owner" href="../../">Philip Engel</a>
+    <h1>Threefold Explorer</h1>
+    <p>Mathematical scope and runtime conventions</p>
+  </div></header>
+  <nav class="utility-bar" aria-label="Project navigation"><div class="utility-inner">
+    <a href="../../">Homepage</a><a href="../">Explorer</a>
+    <a href="https://github.com/philip-engel/philip-engel.github.io/tree/main/threefold-explorer">Source</a>
+  </div></nav>
+  <main class="page-shell">
+    <article class="intro-card document-card">
+      <p class="eyebrow">Current implementation</p>
+      <h2>Mathematical scope</h2>
+      <p>The complete pipeline treats marked rational elliptic surfaces for which <i>Q</i> is globally narrow; <i>P</i> may be non-narrow. It computes the topology from the selected local models by integral Mayer–Vietoris and van Kampen.</p>
+
+      <h2>Implemented hypotheses</h2>
+      <ul>
+        <li>The section pair satisfies the displayed local component conditions.</li>
+        <li>The linearization divisor is supported on semistable I<sub>k</sub> fibers, including added smooth I<sub>0</sub> fibers.</li>
+        <li>Log vectors are exact rational vectors fixed by the corresponding 4 × 4 monodromy.</li>
+        <li>The log order divides the minimal semistable-reduction degree.</li>
+        <li>Mumford compactifications use the prescribed A<sub>2</sub> tiling or rank-one wheel.</li>
+        <li>Quotient compactifications use the selected minimal resolution.</li>
+      </ul>
+
+      <h2><code>None</code> and explicit zero</h2>
+      <p>At an I<sub>k</sub> fiber, including I<sub>0</sub>, the two choices give the same original or prescribed Mumford filling. At a potentially good additive fiber, <code>None</code> selects the original O(P−O) filling, while an explicit zero selects the good-reduction quotient with zero added twist. At a positive-index I<sub>n</sub>* fiber the analogous distinction is between the original filling and the quadratic semistable-reduction quotient.</p>
+
+      <h2>Result qualification</h2>
+      <p>When the program reports “Topology of S<sup>6</sup>,” the supplied smooth geometric model has trivial computed fundamental group and the integral cohomology of S<sup>6</sup>. Realization of every abstract Oguiso–Shioda marking as a specified analytic family is a separate question.</p>
+
+      <h2 id="database">Runtime database</h2>
+      <p>The application uses a read-only table of 487 content-addressed local models. Each entry contains only the marked local cochain pair, the boundary comparison used by Mayer–Vietoris, peripheral relations for van Kampen, compact stalk data, and lookup metadata.</p>
+      <p>Expanded cellular models, reduction certificates, comparison homotopies, detailed derivations, and private validation inputs are maintained separately and are not published with the applet.</p>
+
+      <h2>Outside the current entry point</h2>
+      <ul>
+        <li>non-narrow <i>Q</i>;</li>
+        <li>torsion fixed only modulo the lattice;</li>
+        <li>log order not dividing the semistable-reduction degree;</li>
+        <li>linearization zeros or poles on additive fibers;</li>
+        <li>arbitrary Mumford subdivisions;</li>
+        <li>general recognition of every finitely presented fundamental group.</li>
+      </ul>
+    </article>
+  </main>
+  <footer><span>Threefold Explorer</span><a href="../">Return to the explorer</a></footer>
+</body>
+</html>

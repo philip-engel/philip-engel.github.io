@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: threefold-explorer-api
+    runtime: docker
+    dockerfilePath: ./threefold-explorer/api/Dockerfile
+    dockerContext: ./threefold-explorer/api
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: https://philip-engel.github.io

@@ -1,0 +1,8 @@
+services:
+  sage-api:
+    build: ./api
+    ports:
+      - "8000:8000"
+    environment:
+      ALLOWED_ORIGINS: http://127.0.0.1:8080,http://localhost:8080,https://philip-engel.github.io
+    restart: unless-stopped
