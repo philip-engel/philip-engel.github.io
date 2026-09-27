@@ -69,7 +69,10 @@
           <select id="profile"><option value="default">Default</option></select>
         </label>
         <button class="button primary" type="submit">Load surface</button>
-        <button class="button ghost" id="load-example" type="button">Load the III* + II example</button>
+        <div class="example-actions">
+          <button class="button ghost" id="load-original-example" type="button">Load the IV* + III + I₁ example</button>
+          <button class="button ghost" id="load-split-example" type="button">Load the III* + I₁ + I₁ + I₁ example</button>
+        </div>
       </form>
       <div id="surface-summary" class="surface-summary" hidden>
         <div id="fiber-ribbon" class="fiber-ribbon" aria-label="Ordered Kodaira fibers"></div>

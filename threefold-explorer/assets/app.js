@@ -206,7 +206,7 @@
     state.logSchema = null;
     const narrownessFailure = /narrow/i.test(error.message);
     $("#pair-summary").textContent = narrownessFailure
-      ? "Q does not satisfy the narrowness conditions shown above. The current topology computation requires Q to be globally narrow."
+      ? "Error: The current topology computation requires Q to be globally narrow."
       : error.message;
     $("#pair-summary").classList.remove("pending");
     $("#pair-summary").classList.add("error");
@@ -318,23 +318,43 @@
     finally { setBusy(button, false); }
   }
 
-  async function loadExample() {
+  const examplePresets = {
+    original: {
+      osEntry: 49, profile: "III", P: "1", Q: "6", weights: [0, 0, 1],
+      vectors: {
+        0: "-2, -2/3, 0, 1/3",
+        1: "9/4, 3/4, 0, -1/4",
+      },
+      label: "The IV* + III + I₁ example is ready. Press “Compute topology”.",
+    },
+    split: {
+      osEntry: 43, profile: "default", P: "1", Q: "2", weights: [0, 0, 0, 1],
+      vectors: { 0: "-3/4, -1/4, 0, 1/4" },
+      label: "The III* + I₁ + I₁ + I₁ example is ready. Press “Compute topology”.",
+    },
+  };
+
+  async function loadExample(name) {
+    const preset = examplePresets[name];
     try {
-      $("#os-entry").value = "43";
-      await loadSurface("II");
-      $("#p-vector").value = "1";
-      $("#q-vector").value = "2";
+      $("#os-entry").value = String(preset.osEntry);
+      await loadSurface(preset.profile);
+      $("#p-vector").value = preset.P;
+      $("#q-vector").value = preset.Q;
       await checkSections();
       const fields = document.querySelectorAll(".weight-input");
-      [0, 0, 1].forEach((value, index) => { fields[index].value = value; });
+      preset.weights.forEach((value, index) => { fields[index].value = value; });
       updateDegree();
       $("#coordinates").value = "ambient";
       await prepareLogs();
-      const first = document.querySelector(".log-card");
-      first.querySelector(".log-mode").value = "vector";
-      first.querySelector(".log-mode").dispatchEvent(new Event("change"));
-      first.querySelector("input").value = "-3/4, -1/4, 0, 1/4";
-      notice("The III* + II manuscript example is ready. Press “Compute topology”.");
+      Object.entries(preset.vectors).forEach(([index, vector]) => {
+        const card = document.querySelector(`.log-card[data-index="${index}"]`);
+        const mode = card.querySelector(".log-mode");
+        mode.value = "vector";
+        mode.dispatchEvent(new Event("change"));
+        card.querySelector("input").value = vector;
+      });
+      notice(preset.label);
     } catch (error) { notice(error.message, true); }
   }
 
@@ -343,7 +363,8 @@
     try { await loadSurface(); } catch { /* displayed above */ }
   });
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
-  $("#load-example").addEventListener("click", loadExample);
+  $("#load-original-example").addEventListener("click", () => loadExample("original"));
+  $("#load-split-example").addEventListener("click", () => loadExample("split"));
   $("#sections-form").addEventListener("submit", async (event) => {
     event.preventDefault(); notice("");
     try { await checkSections(); } catch (error) { showSectionError(error); }
