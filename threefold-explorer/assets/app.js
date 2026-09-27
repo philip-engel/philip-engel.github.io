@@ -317,6 +317,29 @@
     return `${components} irreducible component${components === 1 ? "" : "s"}; multiplicities ${multiplicities}; ${shape}.`;
   }
 
+  function localGeometryDescription(model) {
+    const parameters = model.parameters || {};
+    const multiplicity = model.fiber_multiplicity ?? parameters.denominator;
+    if (model.family === "finite_quotient" && parameters.resolution === "free") {
+      return `Multiple fiber${multiplicity ? ` of multiplicity ${multiplicity}` : ""}; its reduction is a bielliptic surface obtained as a free cyclic quotient of the good-reduction abelian surface.`;
+    }
+    if (model.family === "finite_quotient") {
+      return `Resolved non-free good-reduction quotient${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
+    }
+    if (model.family === "star_semistable_quotient") {
+      return `Minimal resolved quadratic quotient of the semistable I${2 * Number(parameters.n || 0)} model${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
+    }
+    if (model.family === "mumford") {
+      const weight = Math.abs(Number(parameters.weight || 0));
+      return `Semistable Mumford filling${weight ? ` with linearization order ${weight}` : ""} and A₂ tiling.`;
+    }
+    if (model.family === "original_plumbing") {
+      return "Original divisor-bundle filling determined by O(P−O), with no good-reduction substitution.";
+    }
+    if (model.family === "smooth_product") return "Smooth T⁴ filling over a disk.";
+    return model.geometry || "";
+  }
+
   function renderResult(result) {
     $("#result-title").textContent = result.integral_homology_sphere ? "Integral homology sphere" : "Computed threefold";
     $("#sphere-badge").hidden = !result.S6_for_supplied_smooth_model;
@@ -329,6 +352,7 @@
     $("#local-models").innerHTML = result.local_models.map((model) =>
       `<div class="model-row"><span>${model.index}</span><b>${model.type}</b><div class="model-copy">
         <span>${model.family.replaceAll("_", " ")}</span>
+        <small>${localGeometryDescription(model)}</small>
         <small>${kodairaDescription(model.type)}</small>
       </div></div>`
     ).join("");
