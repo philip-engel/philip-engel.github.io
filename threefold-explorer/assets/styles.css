@@ -124,8 +124,10 @@ input:focus, select:focus, button:focus-visible, summary:focus-visible { outline
 .cohomology-group strong { font-family: Georgia, serif; font-size: 1.05rem; }
 details { margin-top: 15px; border-top: 1px solid var(--line); padding-top: 13px; }
 summary { color: var(--blue-dark); font-weight: 800; cursor: pointer; }
-.model-list { display: grid; gap: 6px; margin-top: 10px; }
+.model-list { display: grid; gap: 9px; margin-top: 10px; }
 .model-row { display: grid; grid-template-columns: 36px 70px 1fr; gap: 9px; color: var(--muted); font-size: .9rem; }
+.model-copy { display: grid; gap: 2px; }
+.model-copy small { color: var(--muted); line-height: 1.4; }
 .qualification { margin: 17px 0 0; color: var(--muted); font-size: .82rem; }
 .document-card { padding: 32px 36px; }
 .document-card h2 { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
