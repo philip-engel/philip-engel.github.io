@@ -30,7 +30,7 @@ For a quotient, zero means zero *added* twist. The canonical lifted divisor
 character is still part of the construction. Integer parts of log parameters
 are retained in the global clutching.
 
-## Result qualification
+## Reported S6 result
 
 The code computes topology from a supplied collection of marked geometric local
 models. When it reports `S6_for_supplied_smooth_model = True`, the integral
