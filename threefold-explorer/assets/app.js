@@ -10,6 +10,7 @@
     logSchema: null,
     smoothSlots: 0,
   };
+  let surfaceReloadTimer;
 
   function setService(kind, label) {
     $("#service-state").dataset.state = kind;
@@ -420,7 +421,10 @@
     event.preventDefault();
     try { await loadSurface(); } catch { /* displayed above */ }
   });
-  $("#os-entry").addEventListener("change", () => loadSurface("default").catch(() => {}));
+  $("#os-entry").addEventListener("input", () => {
+    clearTimeout(surfaceReloadTimer);
+    surfaceReloadTimer = setTimeout(() => loadSurface("default").catch(() => {}), 300);
+  });
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
   $("#load-original-example").addEventListener("click", () => loadExample("original"));
   $("#load-split-example").addEventListener("click", () => loadExample("split"));
