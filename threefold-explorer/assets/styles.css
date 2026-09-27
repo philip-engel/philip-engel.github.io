@@ -68,6 +68,8 @@ input:focus, select:focus, button:focus-visible, summary:focus-visible { outline
 .button.primary:hover { background: #35425a; }
 .button.secondary { color: var(--blue-dark); background: var(--blue-pale); border-color: #bfd0f2; }
 .button.ghost { color: var(--blue); background: transparent; grid-column: 1 / -1; justify-self: start; padding-left: 0; }
+.example-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 24px; }
+.example-actions .button.ghost { min-height: 36px; }
 .button:disabled { cursor: wait; opacity: .62; }
 .surface-summary { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 18px; }
 .fiber-ribbon { display: flex; flex-wrap: wrap; gap: 9px; }
