@@ -296,7 +296,7 @@
       return `Multiple fiber${multiplicity ? ` of multiplicity ${multiplicity}` : ""}; its reduction is a bielliptic surface obtained as a free cyclic quotient of the good-reduction abelian surface.`;
     }
     if (model.family === "finite_quotient") {
-      return `Resolved non-free good-reduction quotient${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
+      return `Resolved non-free good-reduction quotient${multiplicity ? ` by a cyclic group of order ${multiplicity}` : ""}.`;
     }
     if (model.family === "star_semistable_quotient") {
       return `Minimal resolved quadratic quotient of the semistable I${2 * Number(parameters.n || 0)} model${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
@@ -306,7 +306,7 @@
       return `Semistable Mumford filling${weight ? ` with linearization order ${weight}` : ""} and A₂ tiling.`;
     }
     if (model.family === "original_plumbing") {
-      return "Original divisor-bundle filling determined by O(P−O), with no good-reduction substitution.";
+      return "Original filling determined by O(P−O), with no good-reduction substitution.";
     }
     if (model.family === "smooth_product") return "Smooth T⁴ filling over a disk.";
     return model.geometry || "";
