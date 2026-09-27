@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compute integral cohomology and fundamental groups of marked complex threefolds from rational elliptic surface data.">
+  <title>Threefold Explorer</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script defer src="assets/config.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#explorer">Skip to explorer</a>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <a class="site-owner" href="../">Philip Engel</a>
+      <h1>Threefold Explorer</h1>
+      <p>Marked rational elliptic surfaces, logarithmic modifications, and integral topology</p>
+    </div>
+  </header>
+
+  <nav class="utility-bar" aria-label="Project navigation">
+    <div class="utility-inner">
+      <a href="../">Homepage</a>
+      <a href="#explorer">Explorer</a>
+      <a href="docs/">Scope</a>
+      <a href="https://github.com/philip-engel/philip-engel.github.io/tree/main/threefold-explorer">Source</a>
+      <button id="api-settings" class="settings-button" type="button" aria-expanded="false" aria-controls="settings-panel">
+        Sage service
+      </button>
+    </div>
+  </nav>
+
+  <main id="explorer" class="page-shell">
+    <section class="intro-card">
+      <div>
+        <p class="eyebrow">Narrow-Q implementation</p>
+        <h2>Build a threefold from its marked local data.</h2>
+        <p>Choose an Oguiso–Shioda family, sections <i>P</i> and <i>Q</i>, a linearization divisor, and exact log-modification vectors. The calculation returns the integral cohomology and fundamental group of the resulting compact threefold.</p>
+      </div>
+      <div class="service-state" id="service-state" data-state="checking">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="service-label">Checking Sage service…</span>
+      </div>
+    </section>
+
+    <section id="settings-panel" class="settings-panel" hidden>
+      <label for="api-url">Sage API address</label>
+      <div class="settings-row">
+        <input id="api-url" type="url" inputmode="url" placeholder="https://your-sage-service.example/api">
+        <button id="save-api" class="button secondary" type="button">Save and test</button>
+      </div>
+      <p>The public page and Sage service are deployed separately. This address is stored only in this browser.</p>
+    </section>
+
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <section class="step-card active" id="surface-step">
+      <div class="step-heading">
+        <span class="step-number">1</span>
+        <div><p class="step-kicker">Surface</p><h2>Oguiso–Shioda entry</h2></div>
+      </div>
+      <form id="surface-form" class="form-grid surface-form">
+        <label>OS table number
+          <input id="os-entry" type="number" min="1" max="74" value="43" required>
+        </label>
+        <label>Fiber collision profile
+          <select id="profile"><option value="default">Default</option></select>
+        </label>
+        <button class="button primary" type="submit">Load surface</button>
+        <button class="button ghost" id="load-example" type="button">Load the III* + II example</button>
+      </form>
+      <div id="surface-summary" class="surface-summary" hidden>
+        <div id="fiber-ribbon" class="fiber-ribbon" aria-label="Ordered Kodaira fibers"></div>
+        <div class="surface-meta">
+          <span id="mw-label"></span>
+          <span id="tuple-label"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="step-card locked" id="sections-step" aria-disabled="true">
+      <div class="step-heading">
+        <span class="step-number">2</span>
+        <div><p class="step-kicker">Sections</p><h2>Choose <i>P</i> and narrow <i>Q</i></h2></div>
+      </div>
+      <div class="two-column">
+        <form id="sections-form" class="form-stack">
+          <label><i>P</i> in the displayed MW basis
+            <input id="p-vector" type="text" autocomplete="off" placeholder="1">
+          </label>
+          <label><i>Q</i> in the same basis
+            <input id="q-vector" type="text" autocomplete="off" placeholder="2">
+          </label>
+          <button class="button primary" type="submit">Check sections</button>
+        </form>
+        <aside class="constraint-box">
+          <h3>Narrowness conditions for <i>Q</i></h3>
+          <div id="narrow-constraints"><p>Load a surface to see the local congruences.</p></div>
+        </aside>
+      </div>
+      <div id="pair-summary" class="inline-result" hidden></div>
+    </section>
+
+    <section class="step-card locked" id="linearization-step" aria-disabled="true">
+      <div class="step-heading">
+        <span class="step-number">3</span>
+        <div><p class="step-kicker">Linearization</p><h2>Place the zeros or poles</h2></div>
+      </div>
+      <div class="degree-meter">
+        <span>Total degree</span>
+        <strong id="degree-total">0</strong>
+        <span class="degree-arrow">→</span>
+        <span>required</span>
+        <strong id="degree-required">—</strong>
+      </div>
+      <div id="linearization-row" class="slot-row"></div>
+      <div class="row-actions">
+        <button id="add-smooth" class="button secondary" type="button">Add a smooth I0 fiber</button>
+        <button id="prepare-logs" class="button primary" type="button">Continue to log modifications</button>
+      </div>
+    </section>
+
+    <section class="step-card locked" id="logs-step" aria-disabled="true">
+      <div class="step-heading">
+        <span class="step-number">4</span>
+        <div><p class="step-kicker">Local fillings</p><h2>Choose log-modification data</h2></div>
+      </div>
+      <div class="coordinate-choice">
+        <label for="coordinates">Vector coordinates</label>
+        <select id="coordinates">
+          <option value="invariant">Displayed invariant basis</option>
+          <option value="ambient">Ambient basis (4 entries)</option>
+        </select>
+      </div>
+      <div id="log-row" class="log-grid"></div>
+      <button id="compute" class="button compute-button" type="button">Compute topology</button>
+    </section>
+
+    <section id="results" class="results-card" hidden aria-live="polite">
+      <div class="result-heading">
+        <div><p class="eyebrow">Computed topology</p><h2 id="result-title">Result</h2></div>
+        <span id="sphere-badge" class="sphere-badge" hidden>Topology of S⁶</span>
+      </div>
+      <div class="result-grid">
+        <article><h3>Fundamental group</h3><p id="pi1-result" class="large-result"></p><p id="h1-result" class="muted"></p></article>
+        <article><h3>Euler characteristic</h3><p id="euler-result" class="large-result"></p></article>
+      </div>
+      <div class="cohomology-block">
+        <h3>Integral cohomology</h3>
+        <div id="cohomology" class="cohomology-row"></div>
+      </div>
+      <details>
+        <summary>Local models used</summary>
+        <div id="local-models" class="model-list"></div>
+      </details>
+      <p id="qualification" class="qualification"></p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Threefold Explorer</span>
+    <span>Exact arithmetic in SageMath</span>
+    <a href="docs/#database">Runtime database</a>
+  </footer>
+</body>
+</html>
