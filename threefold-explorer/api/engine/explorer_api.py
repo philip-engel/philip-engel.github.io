@@ -71,6 +71,21 @@ def _congruence(coefficients, modulus, variables):
     return '%s = 0 mod %d' % (' + '.join(terms) if terms else '0', modulus)
 
 
+def _json_value(value):
+    if isinstance(value, dict):
+        return {str(key): _json_value(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_value(item) for item in value]
+    if value is None or isinstance(value, (str, bool, int, float)):
+        return value
+    try:
+        if value.denominator() == 1:
+            return int(value)
+        return _rational_text(value)
+    except (AttributeError, TypeError):
+        return str(value)
+
+
 def describe_os_entry(os_entry, profile='default'):
     """Return the first-stage form: fibers, collision choices, MW and narrow Q."""
     info = om.os_info(_integer(os_entry, 'os_entry'), profile=profile, verbose=False)
@@ -194,7 +209,11 @@ def compute(payload, *, verbose=False, database=None):
     plan = result['database_plan']
     rows = plan['sites']
     local_models = [dict(index=row['index'], type=row['type'],
-        family=row['selection']['family'], model_id=row['model_id']) for row in rows]
+        family=row['selection']['family'], model_id=row['model_id'],
+        parameters=_json_value(row['selection'].get('parameters', {})),
+        geometry=row.get('geometry'),
+        fiber_multiplicity=(int(row['fiber_multiplicity'])
+            if row.get('fiber_multiplicity') is not None else None)) for row in rows]
     return dict(api_version=API_VERSION, status=result['status'],
         input=dict(os_entry=os_entry, profile=profile, P=list(P), Q=list(Q),
             linearization_divisor=list(weights)),
