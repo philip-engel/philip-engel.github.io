@@ -1,7 +1,9 @@
 """Fast checks for the curated project and its web-facing facade."""
 from pathlib import Path
 import json
+import shutil
 import sys
+import tempfile
 import sage.all as s
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,6 +13,7 @@ from explorer_api import describe_os_entry, section_and_linearization_schema, lo
 from local_model_database import LocalModelDatabase
 from threefold_pipeline import manuscript_inputs, original_inputs
 import os_monodromy as om
+import parameterized_models as pm
 import threefold_topology as top
 
 
@@ -63,4 +66,41 @@ star_result = compute(dict(os_entry=entry, P=P, Q=Q, linearization_divisor=weigh
     log_data=logs, coordinates='ambient'))
 assert star_result['local_models'][0]['family'] == 'star_semistable_quotient'
 
-print('PASS: compact runtime database, form schemas, manuscript S6 cases, and I_n* lookup')
+# A cache miss must invoke the bounded Mumford constructor.  This is the
+# IV* + III + I1 input with P=1, Q=12 and a double zero at I1.
+with tempfile.TemporaryDirectory() as temporary:
+    runtime = Path(temporary)/'database'
+    shutil.copytree(ROOT/'engine'/'local_model_database', runtime)
+    dynamic = LocalModelDatabase(runtime)
+    doubled = compute(dict(os_entry=49, profile='III', P=[1], Q=[12],
+        linearization_divisor=[0,0,2],
+        log_data=[['0','1/3'],['0','1/4'],None], coordinates='invariant'),
+        database=dynamic)
+    assert doubled['population'] == {'created':1,'reused':0}
+    assert doubled['local_models'][-1]['parameters']['weight'] == 2
+    assert [row['label'] for row in doubled['cohomology']] == [
+        'Z','0','Z','Z/2','Z + Z/2','0','Z']
+    repeated = compute(dict(os_entry=49, profile='III', P=[1], Q=[12],
+        linearization_divisor=[0,0,2],
+        log_data=[['0','1/3'],['0','1/4'],None], coordinates='invariant'),
+        database=dynamic)
+    assert repeated['population'] == {'created':0,'reused':1}
+
+    try:
+        compute(dict(os_entry=49, profile='III', P=[1], Q=[78],
+            linearization_divisor=[0,0,13], log_data=[None,None,None]),
+            database=dynamic)
+    except ValueError as error:
+        assert 'allowed linearization order (12)' in str(error)
+    else:
+        raise AssertionError('The Mumford order bound was not enforced.')
+
+    # The same runtime path is parameterized in the positive index n for I_n*;
+    # n=7 lies beyond the seed table and checks the general constructor.
+    parameters = dict(n=7,e=1,b=1,scalar=1,circle=1,resolution='minimal')
+    star_record = pm.star_record(**parameters)
+    star_record.pop('retained_geometry',None)
+    dynamic.add_model(star_record)
+    assert dynamic.find('star_semistable_quotient',parameters) is not None
+
+print('PASS: compact seed database, dynamic Mumford cache, manuscript S6 cases, and I_n* lookup')

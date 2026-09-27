@@ -16,6 +16,7 @@ Mayer–Vietoris and van Kampen implementations.
   monodromy.
 - Their torsion order divides the minimal semistable-reduction degree.
 - Mumford compactifications use the prescribed A2 tiling or rank-one wheel.
+- Mumford models have at most 64 components and linearization order at most 12.
 - Quotient compactifications use the selected minimal resolution.
 
 ## `None` and explicit zero
@@ -43,7 +44,8 @@ smooth model.
 - torsion points fixed modulo the lattice but not by the chosen rational lift;
 - log order not dividing the semistable-reduction degree;
 - linearization zeros or poles on additive fibers;
-- arbitrary Mumford subdivisions;
+- Mumford subdivisions other than the prescribed A2 model, or models beyond
+  the displayed runtime bounds;
 - a general recognition theorem assigning a familiar name to every finitely
   presented fundamental group.
 

@@ -1,6 +1,6 @@
 # Runtime database
 
-The local-model database is a read-only lookup table for the narrow-Q topology
+The local-model database is the fast lookup layer for the narrow-Q topology
 pipeline. Each content-addressed record contains only the information used by
 the application:
 
@@ -19,7 +19,9 @@ homotopies, inverse certificates, and provenance hashes are deliberately absent.
 They are required to derive or independently audit an entry, but are not inputs
 to the global topology calculation.
 
-Application requests never modify this directory. If an input requires a model
-that is not indexed, the API returns an unsupported-input error. New models are
-constructed and checked outside the deployed project, then exported as a new
-database version.
+The deployment also contains the checked parameterized constructors for the
+prescribed A2 Mumford filling and quadratic I_n* quotient. If one of these
+models is absent, the service constructs it, removes its derivation witnesses,
+and caches the compact record for the life of the container. Mumford inputs are
+bounded by 64 components and linearization order 12. Other local families stay
+read-only and are selected from the finite table.

@@ -41,7 +41,7 @@
       <p>When the program reports “Topology of S<sup>6</sup>,” the supplied smooth geometric model has trivial computed fundamental group and the integral cohomology of S<sup>6</sup>.</p>
 
       <h2 id="database">Runtime database</h2>
-      <p>The application uses a read-only table of 487 content-addressed local models. Each entry contains only the marked local cochain pair, the boundary comparison used by Mayer–Vietoris, peripheral relations for van Kampen, compact stalk data, and lookup metadata.</p>
+      <p>The application starts from a table of 487 content-addressed local models. Missing prescribed A₂ Mumford models and quadratic I<sub>n</sub>* quotients are constructed once and cached by the Sage service. Mumford inputs are bounded by 64 components and linearization order 12. Each runtime entry contains only the marked local cochain pair, the boundary comparison used by Mayer–Vietoris, peripheral relations for van Kampen, compact stalk data, and lookup metadata.</p>
       <p>Expanded cellular models, reduction certificates, comparison homotopies, detailed derivations, and private validation inputs are maintained separately and are not published with the applet.</p>
 
       <h2>Outside the current entry point</h2>
@@ -50,7 +50,7 @@
         <li>torsion twists fixed only modulo the lattice;</li>
         <li>log order not dividing the semistable-reduction degree;</li>
         <li>linearization zeros or poles on additive fibers;</li>
-        <li>arbitrary Mumford subdivisions;</li>
+        <li>Mumford subdivisions other than the prescribed A₂ model, or models beyond the displayed runtime bounds;</li>
         <li>general recognition of every finitely presented fundamental group.</li>
       </ul>
     </article>

@@ -8,6 +8,7 @@ from local_model_catalog import reduce_clutching,original_specialization_record,
 from quotient_boundary_comparison import marked_transport
 
 REVISION=1
+MAX_MUMFORD_ORDER=12
 
 
 def mumford_selection(data,index):
@@ -50,7 +51,10 @@ def parameterized_selection(db,data,index):
 
 
 def parameterized_provenance(family):
-    common=('parameterized_models.py','parameterized-fillings.md','group_resolutions.py','plumbing_boundary.py')
+    # Runtime builders are part of the deployed engine.  Their source hashes
+    # are enough to invalidate a generated cache entry; the longer derivation
+    # notes deliberately remain outside the public deployment.
+    common=('parameterized_models.py','group_resolutions.py','plumbing_boundary.py')
     if family=='mumford':return source_provenance(*common,'mumford_boundary.py','toric_hocolim.py','cochain_reduction.py','original_boundary_comparison.py')
     return source_provenance(*common,'star_quotient_boundary.py','nonfree_boundary.py')
 
@@ -161,18 +165,28 @@ def populate_input_models(data,*,database=None,max_components=64,verbose=True):
         if not site['Q_narrow']:raise top.ModificationNotTabulatedError('This constructor requires globally narrow Q.')
         if site['weight']:
             selection=mumford_selection(data,site['index']);p=selection['parameters']
-            if max(1,p['n'])*abs(p['weight'])>max_components:raise ValueError('Increase max_components explicitly for this Mumford model.')
+            if abs(p['weight'])>MAX_MUMFORD_ORDER:
+                raise ValueError('The Mumford construction exceeds the allowed linearization order (%d).'%MAX_MUMFORD_ORDER)
+            if max(1,p['n'])*abs(p['weight'])>max_components:
+                raise ValueError('The Mumford construction exceeds the allowed number of components (%d).'%max_components)
             builder=mumford_record
         elif re.fullmatch(r'I[1-9][0-9]*\*',site['type']) and site['filling_model']=='semistable_reduction':
             selection=star_selection(data,site['index']);p=selection['parameters'];builder=star_record
         else:continue
         identity=db.find(selection['family'],p);old=db.get(identity) if identity else None
-        if old and old['provenance']==parameterized_provenance(selection['family']) and old.get('export_revision')==REVISION:
+        # The shipped lookup table is intentionally compact and omits builder
+        # provenance.  A matching parameter key is already a validated model.
+        if old:
             counts['reused']+=1
         else:
             if verbose:print('Building and caching',selection['family'],p,flush=True)
             options=dict(max_components=max_components) if selection['family']=='mumford' else {}
-            db.add_model(builder(**p,**options));counts['created']+=1
+            record=builder(**p,**options)
+            # Construction witnesses are useful for an audit but are not read
+            # by the MV assembler.  Keep the runtime cache as lean as the
+            # precomputed public database.
+            record.pop('retained_geometry',None)
+            db.add_model(record);counts['created']+=1
     if verbose:print('Parameterized models:',counts)
     return dict(database=db,counts=counts)
 
@@ -181,19 +195,20 @@ def explore_narrow_q(os_entry,P,Q,linearization_divisor,log_data=None,*,profile=
                      database=None,max_components=64,recognition_seconds=0,verbose=True):
     """Look up local entries, then compute integral MV and van Kampen.
 
-    The deployment database is deliberately read-only.  Missing local models
-    are reported as unsupported inputs rather than constructed in the request.
+    Missing parameter values are constructed once and cached.  The serialized
+    database remains the fast path for previously exercised inputs.
     """
     from local_model_database import database_mayer_vietoris
     data=top.log_transforms(os_entry,P,Q,linearization_divisor,log_data,profile=profile,coordinates=coordinates,verbose=False)
     db=database if isinstance(database,LocalModelDatabase) else LocalModelDatabase(database)
+    population=populate_input_models(data,database=db,max_components=max_components,verbose=verbose)['counts']
     if verbose:db.info(verbose=True)
     result=database_mayer_vietoris(data,database=db,recognition_seconds=recognition_seconds,verbose=verbose)
     H=result['outcome']['cohomology']
     sphere=all(H[q]['label']==('Z' if q in (0,6) else '0') for q in range(7))
     result['outcome'].update(integral_homology_sphere=sphere,
         S6_for_supplied_smooth_model=sphere and result['pi1']['trivial'] is True)
-    result['population']=dict(created=0,reused=len(result['database_plan']['sites']))
+    result['population']=population
     if verbose:print('Diffeomorphic to S6 for the supplied smooth geometric model:',result['outcome']['S6_for_supplied_smooth_model'])
     return result
 

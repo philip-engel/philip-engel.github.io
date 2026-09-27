@@ -112,7 +112,7 @@ class Handler(BaseHTTPRequestHandler):
         except KeyError as error:
             self._json(404 if str(error) == "'Unknown endpoint'" else 422,
                        {"error": str(error).strip("'")})
-        except (ValueError, TypeError, ArithmeticError) as error:
+        except (ValueError, TypeError, ArithmeticError, NotImplementedError) as error:
             self._json(422, {"error": str(error)})
         except Exception:
             self._json(500, {"error": "The Sage computation failed unexpectedly."})

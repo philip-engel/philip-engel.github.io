@@ -235,10 +235,26 @@
   }
 
   function updateDegree() {
-    const total = weights().reduce((sum, value) => sum + value, 0);
+    const currentWeights = weights();
+    const total = currentWeights.reduce((sum, value) => sum + value, 0);
     $("#degree-total").textContent = String(total);
     const matches = state.pair && String(total) === state.pair.required_total_degree;
     $("#degree-total").style.color = matches ? "var(--green)" : "var(--ink)";
+    let error = "";
+    (state.pair?.slots || []).forEach((slot, index) => {
+      const order = Math.abs(currentWeights[index] || 0);
+      const match = /^I(\d+)$/.exec(slot.type);
+      if (!order || !match) return;
+      const components = Math.max(1, Number(match[1])) * order;
+      if (components > 64) {
+        error = "Error: The Mumford construction exceeds the allowed number of components (64).";
+      } else if (order > 12 && !error) {
+        error = "Error: The Mumford construction exceeds the allowed linearization order (12).";
+      }
+    });
+    $("#linearization-error").textContent = error;
+    $("#linearization-error").hidden = !error;
+    $("#prepare-logs").disabled = Boolean(error);
   }
 
   function renderLogs(schema) {
