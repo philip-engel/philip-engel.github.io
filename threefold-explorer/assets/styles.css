@@ -128,7 +128,14 @@ summary { color: var(--blue-dark); font-weight: 800; cursor: pointer; }
 .model-row { display: grid; grid-template-columns: 36px 70px 1fr; gap: 9px; color: var(--muted); font-size: .9rem; }
 .model-copy { display: grid; gap: 2px; }
 .model-copy small { color: var(--muted); line-height: 1.4; }
-.qualification { margin: 17px 0 0; color: var(--muted); font-size: .82rem; }
+.confetti-layer { position: fixed; inset: 0; z-index: 50; overflow: hidden; pointer-events: none; }
+.confetti-layer i { position: absolute; top: -18px; left: var(--x); width: 9px; height: 15px; border-radius: 2px; opacity: 0; animation: confetti-fall var(--duration) var(--delay) cubic-bezier(.15,.65,.35,1) forwards; }
+@keyframes confetti-fall {
+  0% { opacity: 0; transform: translate3d(0, -3vh, 0) rotate(0deg); }
+  10% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift), 108vh, 0) rotate(var(--spin)); }
+}
 .document-card { display: block; max-width: 820px; margin: 0 auto; padding: 32px 36px; }
 .document-card > p:not(.eyebrow) { max-width: none; margin: .75rem 0; }
 .document-card h2 { margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.5rem; }
@@ -157,4 +164,4 @@ footer a { margin-left: auto; color: var(--blue); }
   .result-heading { align-items: flex-start; flex-direction: column; }
   footer a { margin-left: 0; }
 }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } .confetti-layer { display: none; } }
