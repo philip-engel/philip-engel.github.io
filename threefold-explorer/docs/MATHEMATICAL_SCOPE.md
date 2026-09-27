@@ -35,9 +35,7 @@ are retained in the global clutching.
 The code computes topology from a supplied collection of marked geometric local
 models. When it reports `S6_for_supplied_smooth_model = True`, the integral
 cohomology is that of S6 and the computed fundamental group is trivial for that
-smooth model. This does not independently prove that every abstract OS
-factorization and marking is realized by a specified analytic rational elliptic
-surface family.
+smooth model.
 
 ## Outside the current entry point
 
