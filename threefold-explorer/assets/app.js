@@ -312,6 +312,27 @@
     return model.geometry || "";
   }
 
+  function launchConfetti() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.querySelector(".confetti-layer")?.remove();
+    const colors = ["#2854bd", "#3976e1", "#28785c", "#f1b83b", "#d85d6f", "#8a62cc"];
+    const layer = document.createElement("div");
+    layer.className = "confetti-layer";
+    layer.setAttribute("aria-hidden", "true");
+    for (let index = 0; index < 64; index += 1) {
+      const piece = document.createElement("i");
+      piece.style.setProperty("--x", `${Math.random() * 100}vw`);
+      piece.style.setProperty("--drift", `${(Math.random() - .5) * 28}vw`);
+      piece.style.setProperty("--spin", `${540 + Math.random() * 720}deg`);
+      piece.style.setProperty("--delay", `${Math.random() * .45}s`);
+      piece.style.setProperty("--duration", `${1.8 + Math.random() * .8}s`);
+      piece.style.background = colors[index % colors.length];
+      layer.appendChild(piece);
+    }
+    document.body.appendChild(layer);
+    window.setTimeout(() => layer.remove(), 3200);
+  }
+
   function renderResult(result) {
     $("#result-title").textContent = result.integral_homology_sphere ? "Integral homology sphere" : "Computed threefold";
     $("#sphere-badge").hidden = !result.S6_for_supplied_smooth_model;
@@ -327,9 +348,9 @@
         <small>${localGeometryDescription(model)}</small>
       </div></div>`
     ).join("");
-    $("#qualification").textContent = result.qualification;
     $("#results").hidden = false;
     $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (result.S6_for_supplied_smooth_model) launchConfetti();
   }
 
   async function runComputation() {
