@@ -226,4 +226,4 @@ def compute(payload, *, verbose=False, database=None):
         S6_for_supplied_smooth_model=bool(result['outcome']['S6_for_supplied_smooth_model']),
         local_models=local_models,
         population=dict(result['population']),
-        qualification='The topology conclusion is for the supplied smooth geometric model; realization of an abstract OS marking is separate.')
+        qualification='')
