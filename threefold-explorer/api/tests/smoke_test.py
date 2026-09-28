@@ -17,8 +17,8 @@ import threefold_topology as top
 
 database = LocalModelDatabase()
 info = database.info(verbose=False)
-assert info['models'] == 669
-assert len(list((ROOT/'engine'/'local_model_database'/'objects').glob('*.json'))) == 669
+assert info['models'] == 865
+assert len(list((ROOT/'engine'/'local_model_database'/'objects').glob('*.json'))) == 865
 for row in database.index['models'].values():
     record = database.get(row['id'])
     assert 'retained_geometry' not in record
@@ -48,6 +48,12 @@ for inputs in (manuscript_inputs(), original_inputs()):
     assert [row['label'] for row in result['cohomology']] == ['Z', '0', '0', '0', '0', '0', 'Z']
     assert result['fundamental_group']['trivial'] is True
     assert result['S6_for_supplied_smooth_model'] is True
+
+# The visible III* preset uses the uncollided three-I1 profile.
+split_preset = compute(dict(os_entry=43,P=[1],Q=[2],
+    linearization_divisor=[0,0,0,1],
+    log_data=[['0','-1/4'],None,None,None],coordinates='invariant'))
+assert split_preset['S6_for_supplied_smooth_model']
 
 # Exercise the separate positive-index I_n* lookup and marking path.
 entry, P = 16, (1, 0, 0)
@@ -100,4 +106,92 @@ except ValueError as error:
 else:
     raise AssertionError('The Mumford order bound was not enforced.')
 
-print('PASS: complete read-only database, bounded Mumford table, manuscript S6 cases, and I_n* lookup')
+# The complementary narrow-P models are fully pre-tabulated as well.
+new_mumford = 0
+for n in range(1, 10):
+    for component in range(1, n):
+        for order in range(1, 12//n+1):
+            for sign in (1, -1):
+                assert database.find('mumford', dict(n=n, P_component=0,
+                    Q_component=component, weight=sign*order, tiling='A2'))
+                new_mumford += 1
+assert new_mumford == 124
+for n in range(1, 7):
+    for component in ((1,0), (0,1), (1,1)):
+        for twist in ((0,0), (0,1), (1,0), (1,1)):
+            assert database.find('star_orbit_quotient', dict(n=n,
+                Q_component=component, twist_numerators=twist, resolution='minimal'))
+
+from unittest.mock import patch
+import fiberwise_narrow as fn
+assert not hasattr(fn, 'mumford_record')
+assert not hasattr(fn, 'star_record')
+assert not hasattr(fn, 'populate_fiberwise_models')
+
+# The precise four proposals, both before and after smooth clutching.
+with patch.object(LocalModelDatabase, '_store', side_effect=AssertionError('runtime database write')):
+    for entry, multiple in ((45,8), (47,14), (55,20), (56,30)):
+        pair = section_and_linearization_schema(entry, [multiple], [1], smooth_slots=1)
+        assert pair['P_globally_narrow'] and not pair['Q_globally_narrow']
+        schema = log_transform_schema(entry,[multiple],[1],[0,0,0,0,1,0])
+        assert schema['sites'][-1]['invariant_basis'] == [
+            ['1','0','0','0'],['0','1','0','0'],['0','0','1','0'],['0','0','0','1']]
+        for clutch in (0,1):
+            result = compute(dict(os_entry=entry,P=[multiple],Q=[1],
+                linearization_divisor=[0,0,0,0,1,0],
+                log_data=[None]*5+[[0,0,0,clutch]], coordinates='ambient'), database=database)
+            expected = ['Z','0','0','0','0','0','Z'] if clutch else ['Z','Z','Z^2','Z^2','Z^2','Z','Z']
+            assert [g['label'] for g in result['cohomology']] == expected
+            assert result['fundamental_group']['description'] == ('trivial' if clutch else 'Z')
+            assert result['S6_for_supplied_smooth_model'] == bool(clutch)
+            assert result['population']['created'] == 0
+            print('PASS semistable',entry,'smooth clutch',clutch,flush=True)
+
+# Neither globally narrow; narrowness changes from fiber to fiber.
+pair = section_and_linearization_schema(47,[7],[2])
+assert not pair['P_globally_narrow'] and not pair['Q_globally_narrow']
+assert pair['slots'][0]['P_narrow'] and pair['slots'][1]['Q_narrow']
+for payload, expected in [
+    (dict(os_entry=47,P=[7],Q=[2],linearization_divisor=[0,0,0,0,1]),
+        ['Z','Z','Z^2','Z^2','Z^2','Z','Z']),
+    (dict(os_entry=47,P=[7],Q=[2],linearization_divisor=[1,0,0,0,0]),
+        ['Z','Z','Z^8','Z^2','Z^8','Z','Z']),
+    (dict(os_entry=55,P=[-5],Q=[4],linearization_divisor=[-1,0,0,0,0]),
+        ['Z','Z','Z^8','Z^6','Z^8','Z','Z']),
+    (dict(os_entry=50,P=[4],Q=[3],linearization_divisor=[0,0,0,1],
+          log_data=[['0','1/2'],None,None,None]),
+        ['Z','0','Z^3 + Z/2','Z^6','Z^3','Z/2','Z']),
+    (dict(os_entry=49,profile='III',P=[6],Q=[1],linearization_divisor=[0,0,1],
+          log_data=[None,['1/2','0'],None]),
+        ['Z','Z','Z^6','Z^10','Z^6','Z','Z']),
+]:
+    result = compute(payload,database=database)
+    assert [g['label'] for g in result['cohomology']] == expected
+    assert result['population']['created'] == 0
+    print('PASS fiberwise case',payload,flush=True)
+
+# Reject at every stage, including direct compute requests.
+for call in (
+    # At I0*, different zero coordinates do not make either section narrow.
+    lambda: section_and_linearization_schema(57,[1,0,0],[0,0,1]),
+    lambda: section_and_linearization_schema(47,[1],[1]),
+    lambda: log_transform_schema(47,[1],[1],[0,0,0,0,1]),
+    lambda: compute(dict(os_entry=47,P=[1],Q=[1],linearization_divisor=[0,0,0,0,1])),
+):
+    try: call()
+    except ValueError as error:
+        assert 'Neither is narrow at fiber(s)' in str(error)
+    else: raise AssertionError('Both non-narrow was accepted')
+try:
+    log_transform_schema(47,[14],[7],[7,0,0,0,0])
+except ValueError as error:
+    assert 'allowed number of components (12)' in str(error)
+else: raise AssertionError('The form schema accepted an oversized Mumford filling')
+try:
+    compute(dict(os_entry=56,P=[30],Q=[1],linearization_divisor=[0,0,0,0,1,0],
+                 log_data=[None]*5+[[0,0,0,'1/2']],coordinates='ambient'))
+except top.ModificationNotTabulatedError as error:
+    assert 'does not divide' in str(error)
+else: raise AssertionError('Higher-order smooth twisting was accepted')
+
+print('PASS: 865 read-only models; all bounded component classes; old and new S6 examples; mixed narrowness; validation')

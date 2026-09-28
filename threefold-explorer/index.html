@@ -6,9 +6,9 @@
   <meta name="description" content="Compute integral cohomology and fundamental groups of marked complex threefolds from rational elliptic surface data.">
   <title>Threefold Explorer</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=20260927-5">
+  <link rel="stylesheet" href="assets/styles.css?v=20260928-1">
   <script defer src="assets/config.js"></script>
-  <script defer src="assets/app.js?v=20260927-8"></script>
+  <script defer src="assets/app.js?v=20260928-1"></script>
 </head>
 <body>
   <a class="skip-link" href="#explorer">Skip to explorer</a>
@@ -35,7 +35,7 @@
   <main id="explorer" class="page-shell">
     <section class="intro-card">
       <div>
-        <p class="eyebrow">Narrow-Q implementation</p>
+        <p class="eyebrow">At each fiber, P or Q narrow</p>
         <h2>Build a threefold!</h2>
         <p>Choose an Oguiso–Shioda family, sections <i>P</i> and <i>Q</i>, a linearization divisor, and exact log-modification vectors. The calculation returns the integral cohomology and fundamental group of the resulting compact threefold.</p>
       </div>
@@ -72,6 +72,15 @@
         <div class="example-actions">
           <button class="button ghost" id="load-original-example" type="button">Load the IV* + III + I₁ example</button>
           <button class="button ghost" id="load-split-example" type="button">Load the III* + I₁ + I₁ + I₁ example</button>
+          <label>Semistable S⁶ examples
+            <select id="semistable-example">
+              <option value="os56">I₅ + I₃ + I₂ + 2 I₁ · OS56</option>
+              <option value="os45">I₈ + 4 I₁ · OS45</option>
+              <option value="os47">I₇ + I₂ + 3 I₁ · OS47</option>
+              <option value="os55">I₅ + I₄ + 3 I₁ · OS55</option>
+            </select>
+          </label>
+          <button class="button ghost" id="load-semistable-example" type="button">Load selected semistable example</button>
         </div>
       </form>
       <div id="surface-summary" class="surface-summary" hidden>
@@ -86,8 +95,9 @@
     <section class="step-card locked" id="sections-step" aria-disabled="true">
       <div class="step-heading">
         <span class="step-number">2</span>
-        <div><p class="step-kicker">Sections</p><h2>Choose <i>P</i> and narrow <i>Q</i></h2></div>
+        <div><p class="step-kicker">Sections</p><h2>Choose <i>P</i> and <i>Q</i></h2></div>
       </div>
+      <p class="muted"><i>P</i> specifies the line bundle O(P−O); <i>Q</i> is the translating section.</p>
       <div class="two-column">
         <form id="sections-form" class="form-stack">
           <label><i>P</i> in the displayed MW basis
@@ -99,7 +109,8 @@
           <button class="button primary" type="submit">Check sections</button>
         </form>
         <aside class="constraint-box">
-          <h3>Narrowness conditions for <i>Q</i></h3>
+          <h3>Local narrowness conditions</h3>
+          <p>At each fiber, satisfy every congruence for <i>P</i> or every congruence for <i>Q</i>. The choice may vary from fiber to fiber.</p>
           <div id="narrow-constraints"><p>Load a surface to see the local congruences.</p></div>
           <div id="height-panel" class="height-panel" hidden>
             <h3>Height pairing on free coordinates</h3>

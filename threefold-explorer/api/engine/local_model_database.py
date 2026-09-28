@@ -373,6 +373,9 @@ def prepare_database_mv(data, *, database=None, resolution='minimal', components
             elif record['family'] in ('mumford','star_semistable_quotient') and record.get('boundary_normalization'):
                 from parameterized_models import parameterized_attachment
                 attachment = parameterized_attachment(record,binding,selection)
+            elif record['family'] == 'star_orbit_quotient' and record.get('boundary_normalization'):
+                from fiberwise_narrow import star_attachment
+                attachment = star_attachment(record,binding,selection)
             else:
                 missing.append('global boundary comparison and full clutching map')
         elif record is not None and record.get('pair') is None:

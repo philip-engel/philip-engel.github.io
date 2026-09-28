@@ -5,11 +5,13 @@ import json
 import os
 import sys
 import threading
+import traceback
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "engine"))
 
 from explorer_api import (
+    API_VERSION,
     compute,
     describe_os_entry,
     log_transform_schema,
@@ -54,7 +56,7 @@ def payload_for(path, body):
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "ThreefoldExplorer/1"
+    server_version = "ThreefoldExplorer/2"
 
     def _origin(self):
         origin = self.headers.get("Origin", "").rstrip("/")
@@ -91,9 +93,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self._json(200, {"status": "ok", "models": len(DATABASE.index["models"])})
+            self._json(200, {"status": "ok", "models": len(DATABASE.index["models"]),
+                             "api_version": API_VERSION, "scope": "fiberwise-narrow"})
         elif self.path == "/api":
-            self._json(200, {"name": "Threefold Explorer API", "version": 1})
+            self._json(200, {"name": "Threefold Explorer API", "version": API_VERSION})
         else:
             self._json(404, {"error": "Not found."})
 
@@ -115,6 +118,7 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, TypeError, ArithmeticError, NotImplementedError) as error:
             self._json(422, {"error": str(error)})
         except Exception:
+            traceback.print_exc()
             self._json(500, {"error": "The Sage computation failed unexpectedly."})
 
     def log_message(self, format, *args):

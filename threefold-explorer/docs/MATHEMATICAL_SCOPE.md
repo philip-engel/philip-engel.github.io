@@ -1,53 +1,61 @@
 # Mathematical scope
 
-The complete entry point is `explorer_api.compute`, which calls
-`parameterized_models.explore_narrow_q` and then the exact database
-Mayer–Vietoris and van Kampen implementations.
+`explorer_api.compute` uses `fiberwise_narrow.explore_fiberwise_narrow` and the
+integral database Mayer–Vietoris and van Kampen implementations.
 
-## Implemented hypotheses
+## Section condition
 
-- Q is globally narrow; P may be non-narrow.
-- At every singular fiber, the section pair satisfies the local component
-  condition inherited from the monodromy construction.
-- The linearization divisor is supported on semistable I_k fibers, including
-  added smooth I0 fibers. Its nonzero weights have one sign and sum to
-  the height pairing of P and Q.
-- Log vectors are exact rational vectors fixed by the corresponding 4 by 4
-  monodromy.
-- Their torsion order divides the minimal semistable-reduction degree.
+The line bundle is O(P−O); Q is the translating section. At each singular
+fiber, P or Q must be narrow. The choice may vary from fiber to fiber; neither
+section needs to be globally narrow. For a component group with several
+congruences, every congruence must hold for P or every congruence must hold for Q.
+The API reports the specific fibers where neither section is narrow.
+
+## Other hypotheses and bounds
+
+- Linearization zeros and poles lie on I_k fibers, including added smooth I0.
+  All nonzero weights have one sign and sum to the height pairing of P and Q.
+- Log vectors are exact rational vectors fixed by the 4×4 monodromy, with
+  torsion order dividing the minimal semistable-reduction degree.
 - Mumford compactifications use the prescribed A2 tiling or rank-one wheel.
-- Mumford models have at most 12 components and linearization order at most 12.
+  Every component class satisfying the section condition is tabulated for
+  I0 through I9, with max(1,k) times the absolute weight at most 12.
+- Quadratic I_n* quotients are tabulated for 1 <= n <= 6: at most 12 components
+  in the upstairs I_(2n) model. This includes every positive-index starred
+  fiber occurring on a RES. Original fillings are also present.
 - Quotient compactifications use the selected minimal resolution.
 
-## `None` and explicit zero
+## None, zero, and integral clutching
 
-| Fiber | `None` | Explicit zero vector |
-|---|---|---|
-| I_k, including I0 | Original or prescribed Mumford filling | The same filling |
-| Potentially good additive fiber | Original O(P-O) filling | Good-reduction quotient of O(P'-O') |
-| Positive-index I_n* | Original O(P-O) filling | Quadratic semistable-reduction quotient of O(P'-O') |
+`None` selects the original O(P−O) filling, or the prescribed Mumford filling.
+At an additive fiber an explicit zero selects the reduction quotient of
+O(P′−O′) with zero added twist. If P is locally narrow, these agree under the
+implemented marked comparison. For non-narrow P they can differ.
+At I_k, including I0, None and zero select the same filling.
 
-For a quotient, zero means zero *added* twist. The canonical lifted divisor
-character is still part of the construction. Integer parts of log parameters
-are retained in the global clutching.
+Integer parts of log vectors are retained. A primitive integer vector at a
+smooth fiber has torsion order one and fiber multiplicity one, while its
+clutching can change the topology. The four semistable sphere presets use
+this modification in the quotient direction.
 
-## Reported S6 result
+## Results
 
-The code computes topology from a supplied collection of marked geometric local
-models. When it reports `S6_for_supplied_smooth_model = True`, the integral
-cohomology is that of S6 and the computed fundamental group is trivial for that
-smooth model.
+Every integral cohomology group H0 through H6 is computed from the MV cone.
+Endpoint, Poincaré duality, torsion duality and van Kampen/UCT consistency are
+checked afterward. Fundamental-group recognition is bounded; an unrecognized
+presentation is not replaced by its abelianization.
 
-## Outside the current entry point
+“Topology of S6” means trivial computed fundamental group and integral
+cohomology of S6 for the supplied smooth geometric model. The analytic
+Mumford compactification retains the assumptions of the underlying construction.
 
-- non-narrow Q;
-- torsion points fixed modulo the lattice but not by the chosen rational lift;
-- log order not dividing the semistable-reduction degree;
-- linearization zeros or poles on additive fibers;
-- Mumford subdivisions other than the prescribed A2 model, or models beyond
-  the displayed lookup bounds;
-- a general recognition theorem assigning a familiar name to every finitely
-  presented fundamental group.
+## Outside this implementation
 
-Detailed derivations and full validation certificates are maintained separately
-and are not part of the deployment package.
+- Both P and Q non-narrow at the same singular fiber.
+- Torsion twists fixed only modulo the lattice.
+- Log order not dividing the semistable-reduction degree.
+- Linearization zeros or poles on additive fibers.
+- Other Mumford subdivisions or models beyond the stated bounds.
+- General recognition of every finitely presented fundamental group.
+
+Detailed derivations and validation certificates remain in the research workspace.

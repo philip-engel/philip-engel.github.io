@@ -9,6 +9,13 @@ from quotient_boundary_comparison import marked_transport
 
 MAX_MUMFORD_ORDER=12
 MAX_MUMFORD_COMPONENTS=12
+MAX_STAR_UPSTAIRS_COMPONENTS=12
+
+
+def check_star_bounds(n):
+    if 2*int(n) > MAX_STAR_UPSTAIRS_COMPONENTS:
+        raise ValueError('The quadratic I_n* construction exceeds the allowed number of upstairs semistable components (12).')
+
 
 
 def check_mumford_bounds(n,weight):

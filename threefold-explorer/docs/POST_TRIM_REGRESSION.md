@@ -1,3 +1,5 @@
+> Historical narrow-Q validation snapshot. See RUNTIME_DATABASE.md for the current enlarged table and tests.
+
 # Post-trim regression
 
 Validated on 2026-09-27 with SageMath 10.9 after exporting the compact,

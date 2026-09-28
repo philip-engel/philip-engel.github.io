@@ -46,6 +46,9 @@
     try { body = await response.json(); }
     catch { throw new Error("The Sage service returned an unreadable response."); }
     if (!response.ok) throw new Error(body.error || `Request failed (${response.status}).`);
+    if (body.api_version !== 2) {
+      throw new Error("The Sage service is still running the previous version. Please try again after the update finishes.");
+    }
     return body;
   }
 
@@ -59,6 +62,10 @@
       const response = await fetch(`${root}/health`, { cache: "no-store" });
       const result = await response.json();
       if (!response.ok || result.status !== "ok") throw new Error();
+      if (result.api_version !== 2) {
+        setService("checking", "Sage service updating…");
+        return false;
+      }
       setService("online", `Sage online · ${result.models} local models`);
       return true;
     } catch {
@@ -69,10 +76,11 @@
 
   function parseVector(value, name) {
     const pieces = value.trim().split(/[\s,]+/).filter(Boolean);
+    if (!pieces.length && state.surface?.mordell_weil.tuple_length === 0) return [];
     if (!pieces.length) throw new Error(`${name} cannot be empty.`);
     return pieces.map((piece) => {
       if (!/^-?\d+$/.test(piece)) throw new Error(`${name} must contain integers separated by commas.`);
-      return Number(piece);
+      return piece;
     });
   }
 
@@ -138,9 +146,8 @@
     const zeros = Array(surface.mordell_weil.tuple_length).fill(0).join(", ");
     $("#p-vector").placeholder = zeros;
     $("#q-vector").placeholder = zeros;
-    const constraints = surface.fibers.flatMap((fiber) =>
-      fiber.Q_narrow_constraints.map((item) => `<li><b>${fiber.type}:</b> ${item.display}</li>`)
-    );
+    const constraints = surface.fibers.filter((fiber) => fiber.Q_narrow_constraints.length)
+      .map((fiber) => `<li><b>${fiber.type}:</b> ${fiber.narrowness_rule}</li>`);
     $("#narrow-constraints").innerHTML = constraints.length
       ? `<ul class="constraint-list">${constraints.join("")}</ul>`
       : "<p>Every section is locally narrow at the displayed fibers.</p>";
@@ -180,7 +187,9 @@
       </label>`).join("");
     document.querySelectorAll(".weight-input").forEach((input) => input.addEventListener("input", updateDegree));
     updateDegree();
-    $("#pair-summary").innerHTML = `Pairing ⟨P,Q⟩ = <b>${pair.pairing}</b>. Q satisfies every local narrowness condition.`;
+    const narrowAt = pair.slots.filter((slot) => !slot.smooth).map((slot) =>
+      `${slot.type}: ${slot.P_narrow && slot.Q_narrow ? "both" : slot.P_narrow ? "P" : "Q"}`);
+    $("#pair-summary").textContent = `Pairing ⟨P,Q⟩ = ${pair.pairing}. Local narrowness satisfied (${narrowAt.join("; ")}).`;
     $("#pair-summary").classList.remove("pending", "error");
     $("#pair-summary").hidden = false;
     lock("#linearization-step", false);
@@ -207,10 +216,7 @@
   function showSectionError(error) {
     state.pair = null;
     state.logSchema = null;
-    const narrownessFailure = /narrow/i.test(error.message);
-    $("#pair-summary").textContent = narrownessFailure
-      ? "Error: The current topology computation requires Q to be globally narrow."
-      : error.message;
+    $("#pair-summary").textContent = `Error: ${error.message}`;
     $("#pair-summary").classList.remove("pending");
     $("#pair-summary").classList.add("error");
     $("#pair-summary").hidden = false;
@@ -235,6 +241,9 @@
   }
 
   function updateDegree() {
+    state.logSchema = null;
+    lock("#logs-step", true);
+    $("#results").hidden = true;
     const currentWeights = weights();
     const total = currentWeights.reduce((sum, value) => sum + value, 0);
     $("#degree-total").textContent = String(total);
@@ -264,6 +273,8 @@
       const count = ambient ? 4 : site.coordinate_count;
       const basis = ambient ? "Coordinates in (e₁,e₂,δ,c)." :
         `${site.coordinate_count}-dimensional invariant lattice; allowed denominators divide ${site.reduction_order}.`;
+      const columns = Array.from({length: site.coordinate_count}, (_, j) =>
+        `v${j+1} = (${site.invariant_basis.map((row) => row[j]).join(", ")})`);
       return `<article class="log-card" data-index="${site.index - 1}" data-count="${count}">
         <h3>${site.type} <small>· fiber ${site.index}</small></h3>
         <label>Filling choice
@@ -277,6 +288,7 @@
           <input type="text" autocomplete="off" placeholder="${Array(count).fill("0").join(", ")}">
         </label>
         <p class="log-help">${basis}</p>
+        ${ambient ? "" : `<details class="basis-help"><summary>Invariant basis in (e₁,e₂,δ,c)</summary>${columns.map((column) => `<div><code>${column}</code></div>`).join("")}</details>`}
       </article>`;
     }).join("");
     document.querySelectorAll(".log-mode").forEach((select) => select.addEventListener("change", () => {
@@ -312,7 +324,10 @@
       return `Multiple fiber${multiplicity ? ` of multiplicity ${multiplicity}` : ""}; its reduction is a bielliptic surface obtained as a free cyclic quotient of the good-reduction abelian surface.`;
     }
     if (model.family === "finite_quotient") {
-      return `Resolved non-free good-reduction quotient${multiplicity ? ` by a cyclic group of order ${multiplicity}` : ""}.`;
+      return `Resolved non-free good-reduction quotient${parameters.denominator ? ` by a cyclic group of order ${parameters.denominator}` : ""}${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
+    }
+    if (model.family === "star_orbit_quotient") {
+      return `Minimal resolved quadratic quotient with Q permuting the components of the upstairs I${2 * Number(parameters.n || 0)} fiber${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
     }
     if (model.family === "star_semistable_quotient") {
       return `Minimal resolved quadratic quotient of the semistable I${2 * Number(parameters.n || 0)} model${multiplicity ? `; fiber multiplicity ${multiplicity}` : ""}.`;
@@ -322,6 +337,9 @@
       return `Semistable Mumford filling${weight ? ` with linearization order ${weight}` : ""} and A₂ tiling.`;
     }
     if (model.family === "original_plumbing") {
+      if (model.component_orbits != null) {
+        return `Original filling determined by O(P−O). Translation by Q has ${model.component_orbits} component orbit${model.component_orbits === 1 ? "" : "s"}, each of length ${model.component_orbit_length}; the reduced fiber is a wheel of ${model.component_orbits} component${model.component_orbits === 1 ? "" : "s"}.`;
+      }
       return "Original filling determined by O(P−O), with no good-reduction substitution.";
     }
     if (model.family === "smooth_product") return "Smooth T⁴ filling over a disk.";
@@ -399,6 +417,14 @@
       label: "The III* + I₁ + I₁ + I₁ example is ready. Press “Compute topology”.",
     },
   };
+  for (const [entry, multiple] of [[45, 8], [47, 14], [55, 20], [56, 30]]) {
+    examplePresets[`os${entry}`] = {
+      osEntry: entry, profile: "default", P: String(multiple), Q: "1",
+      smoothSlots: 1, weights: [0, 0, 0, 0, 1, 0],
+      vectors: {5: "0, 0, 0, 1"},
+      label: `OS${entry}: Q = G, P = ${multiple}G, one simple zero at I₁, and primitive integral clutching at the added smooth fiber. Press “Compute topology”.`,
+    };
+  }
 
   async function loadExample(name) {
     const preset = examplePresets[name];
@@ -407,6 +433,7 @@
       await loadSurface(preset.profile);
       $("#p-vector").value = preset.P;
       $("#q-vector").value = preset.Q;
+      state.smoothSlots = preset.smoothSlots || 0;
       await checkSections();
       const fields = document.querySelectorAll(".weight-input");
       preset.weights.forEach((value, index) => { fields[index].value = value; });
@@ -435,6 +462,7 @@
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
   $("#load-original-example").addEventListener("click", () => loadExample("original"));
   $("#load-split-example").addEventListener("click", () => loadExample("split"));
+  $("#load-semistable-example").addEventListener("click", () => loadExample($("#semistable-example").value));
   $("#sections-form").addEventListener("submit", async (event) => {
     event.preventDefault(); notice("");
     try { await checkSections(); } catch (error) { showSectionError(error); }
@@ -442,8 +470,15 @@
   $("#p-vector").addEventListener("input", invalidatePairing);
   $("#q-vector").addEventListener("input", invalidatePairing);
   $("#add-smooth").addEventListener("click", async () => {
+    const savedWeights = weights();
     state.smoothSlots += 1;
-    try { await checkSections(); } catch (error) { state.smoothSlots -= 1; notice(error.message, true); }
+    try {
+      await checkSections();
+      document.querySelectorAll(".weight-input").forEach((input, index) => {
+        input.value = savedWeights[index] || 0;
+      });
+      updateDegree();
+    } catch (error) { state.smoothSlots -= 1; notice(error.message, true); }
   });
   $("#prepare-logs").addEventListener("click", async () => {
     try { await prepareLogs(); } catch (error) { notice(error.message, true); }

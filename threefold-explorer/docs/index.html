@@ -6,7 +6,7 @@
   <meta name="description" content="Mathematical and computational scope of Threefold Explorer.">
   <title>Scope · Threefold Explorer</title>
   <link rel="icon" href="../favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="../assets/styles.css?v=20260927-4">
+  <link rel="stylesheet" href="../assets/styles.css?v=20260928-1">
 </head>
 <body>
   <header class="masthead"><div class="masthead-inner">
@@ -22,11 +22,11 @@
     <article class="intro-card document-card">
       <p class="eyebrow">Current implementation</p>
       <h2>Mathematical scope</h2>
-      <p>The complete pipeline treats marked rational elliptic surfaces for which <i>Q</i> is globally narrow; <i>P</i> may be non-narrow. It computes the topology from the selected local models by integral Mayer–Vietoris and van Kampen.</p>
+      <p>The complete pipeline treats marked rational elliptic surfaces for which at least one of <i>P</i> or <i>Q</i> is narrow at each singular fiber. The choice may vary between fibers. It computes the topology from the selected local models by integral Mayer–Vietoris and van Kampen.</p>
 
       <h2>Implemented hypotheses</h2>
       <ul>
-        <li>The section pair satisfies the displayed local component conditions.</li>
+        <li>The line bundle is O(P−O), and Q is the translating section. At each fiber all narrowness congruences hold for P or all hold for Q.</li>
         <li>The linearization divisor is supported on semistable I<sub>k</sub> fibers, including added smooth I<sub>0</sub> fibers.</li>
         <li>Log vectors are exact rational vectors fixed by the corresponding 4 × 4 monodromy.</li>
         <li>The log order divides the minimal semistable-reduction degree.</li>
@@ -37,16 +37,18 @@
       <h2><code>None</code> and explicit zero</h2>
       <p>At an I<sub>k</sub> fiber, including I<sub>0</sub>, the two choices give the same original or prescribed Mumford filling. At a potentially good additive fiber, <code>None</code> selects the original O(P−O) filling, while an explicit zero selects the good-reduction quotient with zero added twist. At a positive-index I<sub>n</sub>* fiber the analogous distinction is between the original filling and the quadratic semistable-reduction quotient.</p>
 
+      <p>When <i>P</i> is locally narrow, the original and zero-added-twist reduction fillings agree under the implemented marked comparison. Integer parts of all log vectors are retained: a nonzero integral vector at a smooth fiber has multiplicity one but can change the topology.</p>
+
       <h2>Reported S<sup>6</sup> result</h2>
       <p>When the program reports “Topology of S<sup>6</sup>,” the supplied smooth geometric model has trivial computed fundamental group and the integral cohomology of S<sup>6</sup>.</p>
 
       <h2 id="database">Runtime database</h2>
-      <p>The application uses a read-only table of 669 content-addressed local models. Every prescribed A₂ Mumford model with at most 12 components and linearization order at most 12 is already present, as are the quadratic I<sub>n</sub>* quotients in the stated regime. Each lookup entry contains only the marked local cochain pair, the boundary comparison used by Mayer–Vietoris, peripheral relations for van Kampen, compact stalk data, and lookup metadata.</p>
+      <p>The application uses a read-only table of 865 content-addressed local models. The table includes all allowed P and Q component classes for prescribed A₂ Mumford models on I₀ through I₉ with at most 12 components and linearization order at most 12. Quadratic I<sub>n</sub>* quotients are tabulated for n = 1,…,6, so the upstairs I<sub>2n</sub> model has at most 12 components. This covers every positive-index starred fiber occurring on a rational elliptic surface. Each lookup entry contains only the marked local cochain pair, the boundary comparison used by Mayer–Vietoris, peripheral relations for van Kampen, compact stalk data, and lookup metadata.</p>
       <p>Expanded cellular models, reduction certificates, comparison homotopies, detailed derivations, and private validation inputs are maintained separately and are not published with the applet.</p>
 
       <h2>Outside the current entry point</h2>
       <ul>
-        <li>non-narrow <i>Q</i>;</li>
+        <li>both <i>P</i> and <i>Q</i> non-narrow at the same singular fiber;</li>
         <li>torsion twists fixed only modulo the lattice;</li>
         <li>log order not dividing the semistable-reduction degree;</li>
         <li>linearization zeros or poles on additive fibers;</li>

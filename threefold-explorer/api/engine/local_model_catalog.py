@@ -368,7 +368,8 @@ def select_local_model(db, data, index, *, resolution='minimal', P_component=Non
     selection={}
     family=None
     if not site['Q_narrow']:
-        return dict(model_id=None,missing=['non-narrow-Q model not registered'])
+        from fiberwise_narrow import select_local_model as select_fiberwise
+        return select_fiberwise(db,data,index,resolution=resolution,P_component=P_component)
     if site['weight']:
         from parameterized_models import parameterized_selection
         return parameterized_selection(db,data,index)

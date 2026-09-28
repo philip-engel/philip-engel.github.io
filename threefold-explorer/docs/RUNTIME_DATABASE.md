@@ -1,26 +1,32 @@
 # Runtime database
 
-The local-model database is the fast lookup layer for the narrow-Q topology
-pipeline. Each content-addressed record contains only the information used by
-the application:
+The application uses 865 compact, content-addressed local models:
 
-- the model family and normalized parameters;
-- the marked local filling and boundary cochain complexes;
-- the local-to-standard boundary comparison used by Mayer–Vietoris;
-- van Kampen peripheral relations and multiplicity;
-- compact integral stalk summaries for verbose inspection;
-- the monodromy, marking, and short geometric label needed for selection.
+| Family | Records |
+| --- | ---: |
+| Original fillings | 85 |
+| Finite good-reduction quotients | 275 |
+| Quadratic I_n* quotients with narrow Q | 96 |
+| Quadratic I_n* quotients with narrow P and non-narrow Q | 72 |
+| Bounded Mumford fillings, including smooth wheels | 336 |
+| Smooth product | 1 |
 
-The index maps a normalized family/parameter key to an object checksum. Every
-object is checksum-verified when read. No executable object or pickle is stored.
+Each entry retains only the marked local cochain pair, boundary comparison,
+peripheral relations, stalk summaries, marking and lookup parameters. Object
+checksums are verified on reading. Derivations, expanded cellular models,
+inverse certificates, historical records and private notes are excluded.
 
-Expanded cell labels, raw resolutions, Smith-reduction certificates, comparison
-homotopies, inverse certificates, and provenance hashes are deliberately absent.
-They are required to derive or independently audit an entry, but are not inputs
-to the global topology calculation.
+The computation path is read-only. It contains no geometric model builders.
+Models are generated and audited offline; request-time work consists of lookup,
+full integral boundary transport, and global MV and van Kampen calculations.
+Integral clutching is restored after reduction into the torsion fundamental domain.
 
-The deployment is entirely read-only. The prescribed A2 Mumford fillings are
-tabulated for every allowed input with at most 12 components and linearization
-order at most 12. The quadratic I_n* quotient table is complete in the stated
-exactly-invariant regime. Request-time work consists only of lookup, integral
-boundary re-marking, and the global Mayer--Vietoris and van Kampen calculations.
+All allowed component classes are present for Mumford fillings over I0 through
+I9 with at most 12 components and absolute linearization order at most 12.
+For I_n* the bound applies to the upstairs I_(2n) wheel, so 1 <= n <= 6.
+The requested log vectors remain exactly invariant, with m dividing d.
+
+Run `sage -python tests/smoke_test.py` from the API or package directory after
+unpacking the archive. Tests check table coverage and checksums, the two earlier
+sphere models, all four semistable sphere presets and their untwisted controls,
+mixed local narrowness, signed Mumford weights, starred twists and input errors.

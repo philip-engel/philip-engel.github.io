@@ -191,11 +191,11 @@ def quotient_attachment(record, binding, selection):
         multiplicity = record['parameters']['denominator']
         meridian = -marking*(peripheral['norm_vector']+multiplicity*clutch)
     else:
-        lattice_map = peripheral['lattice_map']*marking.inverse()
+        lattice_map = s.matrix(s.ZZ, peripheral['lattice_map']*marking.inverse())
         meridian_image = -peripheral['deck_image']-peripheral['lattice_map']*clutch
         killed = top._kernel(lattice_map)
         multiplicity = peripheral['base_cover_degree']
-        meridian = lf._lf_integer_solution(lattice_map, multiplicity*meridian_image)
+        meridian = lf._lf_integer_solution(lattice_map, s.vector(s.ZZ, multiplicity*meridian_image))
     van_kampen = dict(name='Marked finite quotient with integral boundary comparison',
         vanishing_cycles=killed, multiplicity=multiplicity,
         meridian_vector=s.vector(s.ZZ, meridian), assumptions=[])

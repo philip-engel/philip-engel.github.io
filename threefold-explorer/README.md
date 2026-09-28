@@ -5,7 +5,7 @@ This directory contains the public interface and the containerized Sage service.
 ## Structure
 
 - `index.html` and `assets/`: static GitHub Pages frontend;
-- `api/`: SageMath 10.9 service, compressed 669-model read-only database with complete bounded Mumford and I_n* lookup tables;
+- `api/`: SageMath 10.9 service, compressed 865-model read-only database with complete bounded Mumford and I_n* lookup tables under the fiberwise P-or-Q narrowness condition;
 - `docker-compose.yml`: local full-stack launch;
 - `docs/`: public scope and runtime documentation.
 

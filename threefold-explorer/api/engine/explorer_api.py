@@ -12,7 +12,7 @@ import os_monodromy as om
 import threefold_topology as top
 
 
-API_VERSION = 1
+API_VERSION = 2
 
 
 def _integer(value, name):
@@ -87,19 +87,24 @@ def _json_value(value):
 
 
 def describe_os_entry(os_entry, profile='default'):
-    """Return the first-stage form: fibers, collision choices, MW and narrow Q."""
+    """Return fibers, MW coordinates and the complete local OR conditions."""
     info = om.os_info(_integer(os_entry, 'os_entry'), profile=profile, verbose=False)
     length = info['section_tuple_length']
     variables = tuple('q%d' % (i + 1) for i in range(length))
     fibers = []
     for index, (kind, component) in enumerate(zip(info['kodaira_types'], info['component_maps']), 1):
         constraints = []
+        p_constraints = []
         for coefficients, modulus in zip(component['rows'], component['moduli']):
             constraints.append(dict(coefficients=list(map(int, coefficients)), modulus=int(modulus),
                 display=_congruence(coefficients, modulus, variables)))
+            p_constraints.append(dict(coefficients=list(map(int, coefficients)), modulus=int(modulus),
+                display=_congruence(coefficients, modulus, tuple('p%d' % (i+1) for i in range(length)))))
         fibers.append(dict(index=index, type=kind,
             component_group=_group_label(0, component['moduli']),
-            Q_narrow_constraints=constraints))
+            P_narrow_constraints=p_constraints, Q_narrow_constraints=constraints,
+            narrowness_rule='('+' and '.join(row['display'] for row in p_constraints)+') OR ('+
+                ' and '.join(row['display'] for row in constraints)+')' if constraints else 'Both sections are narrow'))
     collisions = [dict(profile=name,
         label='No selected collision' if name == 'default' else 'Collision profile producing %s' % name,
         selected=name == profile) for name in info['available_profiles']]
@@ -111,8 +116,28 @@ def describe_os_entry(os_entry, profile='default'):
         narrow_Q=dict(generators=[list(map(int, row)) for row in info['narrow_generators']],
             free_smith_factors=list(map(int, info['narrow_free_divisors'])),
             quotient_invariants=list(map(int, info['mw_mod_narrow_invariants'])),
-            explanation='Q must satisfy every displayed congruence; equivalently, choose an integer combination of the narrow generators.'),
+            explanation='These generators describe the narrow MW subgroup. Neither section is required to belong to it globally; at each fiber all congruences must hold for P or all must hold for Q.'),
         model_status=info['model_status'])
+
+
+def _check_pair(os_entry, P, Q, profile):
+    pair = om.check_pair(os_entry, P, Q, profile=profile, verbose=False)
+    if not pair['valid']:
+        info = om.os_info(os_entry, profile=profile, verbose=False)
+        failures = ', '.join('%d (%s)' % (i, info['kodaira_types'][i-1])
+                             for i in pair['failing_fibers'])
+        raise ValueError('At least one of P or Q must be narrow at each singular fiber. '
+                         'Neither is narrow at fiber(s): '+failures+'.')
+    return pair
+
+
+def _check_bounds(data):
+    from parameterized_models import check_mumford_bounds, check_star_bounds
+    for site in data['sites']:
+        if site['weight']:
+            check_mumford_bounds(int(site['type'][1:]), site['weight'])
+        if re.fullmatch(r'I[1-9][0-9]*\*', site['type']):
+            check_star_bounds(int(site['type'][1:-1]))
 
 
 def section_and_linearization_schema(os_entry, P, Q, profile='default', smooth_slots=0):
@@ -122,23 +147,24 @@ def section_and_linearization_schema(os_entry, P, Q, profile='default', smooth_s
     if smooth_slots < 0:
         raise ValueError('smooth_slots must be nonnegative.')
     P, Q = _section_tuple(P, 'P'), _section_tuple(Q, 'Q')
-    pair = om.check_pair(os_entry, P, Q, profile=profile, verbose=False)
-    if not pair['Q_globally_narrow']:
-        raise ValueError('The current complete topology pipeline requires Q to be globally narrow.')
+    pair = _check_pair(os_entry, P, Q, profile)
     info = om.os_info(os_entry, profile=profile, verbose=False)
     slots = []
     for index, kind in enumerate(info['kodaira_types'], 1):
         allowed = bool(re.fullmatch(r'I[0-9]+', kind))
         slots.append(dict(index=index, type=kind, smooth=False,
             linearization_allowed=allowed,
-            explanation='Any integer' if allowed else 'Must be 0 in the current narrow-Q scope'))
+            explanation='Any integer within the 12-component limit' if allowed else 'Must be 0 at an additive fiber',
+            P_narrow=not any(pair['P_components'][index-1]),
+            Q_narrow=not any(pair['Q_components'][index-1])))
     for j in range(smooth_slots):
         slots.append(dict(index=len(slots)+1, type='I0', smooth=True,
-            linearization_allowed=True, explanation='Any integer'))
+            linearization_allowed=True, explanation='Any integer within the 12-component limit',
+            P_narrow=True, Q_narrow=True))
     return dict(api_version=API_VERSION, os_entry=os_entry, profile=profile,
         P=list(pair['P']), Q=list(pair['Q']), pairing=_rational_text(pair['pairing']),
         required_total_degree=_rational_text(pair['pairing']),
-        P_globally_narrow=bool(pair['P_globally_narrow']), Q_globally_narrow=True,
+        P_globally_narrow=bool(pair['P_globally_narrow']), Q_globally_narrow=bool(pair['Q_globally_narrow']),
         slots=slots,
         sign_rule='All nonzero weights must have the same sign, and their sum must equal the displayed degree.')
 
@@ -146,12 +172,12 @@ def section_and_linearization_schema(os_entry, P, Q, profile='default', smooth_s
 def log_transform_schema(os_entry, P, Q, linearization_divisor, profile='default'):
     """Return the site-by-site invariant bases after weights have been chosen."""
     P, Q = _section_tuple(P, 'P'), _section_tuple(Q, 'Q')
+    _check_pair(_integer(os_entry, 'os_entry'), P, Q, profile)
     weights = tuple(_integer(x, 'linearization_divisor[%d]' % i)
                     for i, x in enumerate(linearization_divisor))
     data = top.log_transforms(_integer(os_entry, 'os_entry'), P, Q, weights,
                               profile=profile, verbose=False)
-    if not data['pair']['Q_globally_narrow']:
-        raise ValueError('The current complete topology pipeline requires Q to be globally narrow.')
+    _check_bounds(data)
     sites = []
     for site in data['sites']:
         sites.append(dict(index=site['index'], type=site['type'], weight=site['weight'],
@@ -160,8 +186,9 @@ def log_transform_schema(os_entry, P, Q, linearization_divisor, profile='default
             reduction_order=site['reduction_order'], psi_index=site['psi_index'],
             allowable_denominators=[d for d in range(1, site['reduction_order']+1)
                                     if site['reduction_order'] % d == 0],
-            none_meaning='Original divisor bundle' if not site['weight'] else 'Mumford filling with zero added clutching',
-            zero_meaning=('Same filling as None' if re.fullmatch(r'I[0-9]+', site['type'])
+            P_narrow=site['P_narrow'], Q_narrow=site['Q_narrow'],
+            none_meaning='Original filling' if not site['weight'] else 'Mumford filling with zero added clutching',
+            zero_meaning=('Same filling as None' if site['P_narrow'] or re.fullmatch(r'I[0-9]+', site['type'])
                           else 'Reduction quotient with zero added twist')))
     return dict(api_version=API_VERSION, os_entry=int(os_entry), profile=profile,
         coordinates='invariant', sites=sites,
@@ -185,8 +212,8 @@ def _log_data(values):
 
 
 def compute(payload, *, verbose=False, database=None):
-    """Run the cached narrow-Q computation and return a compact web result."""
-    import parameterized_models as pm
+    """Run the cached fiberwise-narrow computation and return a web result."""
+    from fiberwise_narrow import explore_fiberwise_narrow
     required = ('os_entry', 'P', 'Q', 'linearization_divisor')
     missing = [key for key in required if key not in payload]
     if missing:
@@ -194,10 +221,11 @@ def compute(payload, *, verbose=False, database=None):
     os_entry = _integer(payload['os_entry'], 'os_entry')
     profile = payload.get('profile', 'default')
     P, Q = _section_tuple(payload['P'], 'P'), _section_tuple(payload['Q'], 'Q')
+    _check_pair(os_entry, P, Q, profile)
     weights = tuple(_integer(x, 'linearization_divisor[%d]' % i)
                     for i, x in enumerate(payload['linearization_divisor']))
     logs = _log_data(payload.get('log_data'))
-    result = pm.explore_narrow_q(os_entry, P, Q, weights, logs,
+    result = explore_fiberwise_narrow(os_entry, P, Q, weights, logs,
         profile=profile, coordinates=payload.get('coordinates', 'invariant'),
         database=database,
         recognition_seconds=_integer(payload.get('recognition_seconds', 0), 'recognition_seconds'),
@@ -210,9 +238,10 @@ def compute(payload, *, verbose=False, database=None):
     local_models = [dict(index=row['index'], type=row['type'],
         family=row['selection']['family'], model_id=row['model_id'],
         parameters=_json_value(row['selection'].get('parameters', {})),
+        component_orbits=row['selection'].get('component_orbits'),
+        component_orbit_length=row['selection'].get('component_orbit_length'),
         geometry=row.get('geometry'),
-        fiber_multiplicity=(int(row['fiber_multiplicity'])
-            if row.get('fiber_multiplicity') is not None else None)) for row in rows]
+        fiber_multiplicity=int(plan['peripheral_records'][row['index']-1]['multiplicity'])) for row in rows]
     return dict(api_version=API_VERSION, status=result['status'],
         input=dict(os_entry=os_entry, profile=profile, P=list(P), Q=list(Q),
             linearization_divisor=list(weights)),
