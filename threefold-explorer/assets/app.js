@@ -430,6 +430,31 @@
       vectors: { 0: "0, -1/4" },
       label: "The III* + I₁ + I₁ + I₁ example is ready. Press “Compute topology”.",
     },
+    "os49-default": {
+      osEntry: 49, profile: "default", P: "2", Q: "3", weights: [0, 0, 1, 0],
+      vectors: { 1: "0, 1/3" },
+      label: "OS49: I₂ + IV* + 2 I₁, with the full-order twist at IV*. Press “Compute topology”.",
+    },
+    "os45-ii": {
+      osEntry: 45, profile: "II", P: "8", Q: "1", weights: [0, 0, 1, 0],
+      vectors: { 1: "0, 1/6" },
+      label: "OS45: I₈ + II + 2 I₁, with the full-order twist at II. Press “Compute topology”.",
+    },
+    "os47-ii": {
+      osEntry: 47, profile: "II", P: "14", Q: "1", weights: [0, 0, 1, 0],
+      vectors: { 3: "0, 1/6" },
+      label: "OS47: I₇ + I₂ + I₁ + II, with the full-order twist at II. Press “Compute topology”.",
+    },
+    "os55-ii": {
+      osEntry: 55, profile: "II", P: "20", Q: "1", weights: [0, 0, 0, 1],
+      vectors: { 2: "0, 1/6" },
+      label: "OS55: I₅ + I₄ + II + I₁, with the full-order twist at II. Press “Compute topology”.",
+    },
+    "os56-iv": {
+      osEntry: 56, profile: "IV", P: "10", Q: "3", weights: [0, 0, 0, 1],
+      vectors: { 2: "0, 1/3" },
+      label: "OS56: I₅ + I₂ + IV + I₁, with the full-order twist at IV. Press “Compute topology”.",
+    },
   };
   for (const [entry, multiple] of [[45, 8], [47, 14], [55, 20], [56, 30]]) {
     examplePresets[`os${entry}`] = {
