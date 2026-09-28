@@ -1,4 +1,3 @@
-/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 """Small, JSON-ready facade for a future Threefold Explorer web interface.
 
 The mathematical engine intentionally returns rich Sage objects.  This module
