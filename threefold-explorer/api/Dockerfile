@@ -4,7 +4,7 @@ USER root
 WORKDIR /app
 COPY engine/*.py /app/engine/
 COPY engine/local_model_database.tar.gz /tmp/local_model_database.tar.gz
-COPY service.py /app/service.py
+COPY service.py sage_worker.py /app/
 RUN tar -xzf /tmp/local_model_database.tar.gz -C /app/engine \
     && rm /tmp/local_model_database.tar.gz \
     && chown -R sage:sage /app

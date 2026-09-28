@@ -1,24 +1,14 @@
 """Small HTTP boundary for the Threefold Explorer Sage engine."""
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 import json
 import os
 import sys
 import threading
+import subprocess
 import traceback
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "engine"))
-
-from explorer_api import (
-    API_VERSION,
-    compute,
-    describe_os_entry,
-    log_transform_schema,
-    section_and_linearization_schema,
-)
-from local_model_database import LocalModelDatabase
-
 PORT = int(os.environ.get("PORT", "8000"))
 MAX_BODY = 128 * 1024
 DEFAULT_ORIGINS = (
@@ -31,28 +21,39 @@ ALLOWED_ORIGINS = {
     for value in os.environ.get("ALLOWED_ORIGINS", ",".join(DEFAULT_ORIGINS)).split(",")
     if value.strip()
 }
-DATABASE = LocalModelDatabase()
-COMPUTE_LOCK = threading.Lock()
 
 
-def payload_for(path, body):
-    if path == "/api/os-entry":
-        return describe_os_entry(body["os_entry"], profile=body.get("profile", "default"))
-    if path == "/api/sections":
-        return section_and_linearization_schema(
-            body["os_entry"], body["P"], body["Q"],
-            profile=body.get("profile", "default"),
-            smooth_slots=body.get("smooth_slots", 0),
-        )
-    if path == "/api/log-schema":
-        return log_transform_schema(
-            body["os_entry"], body["P"], body["Q"], body["linearization_divisor"],
-            profile=body.get("profile", "default"),
-        )
-    if path == "/api/compute":
-        with COMPUTE_LOCK:
-            return compute(body, verbose=False, database=DATABASE)
-    raise KeyError("Unknown endpoint")
+class SageWorker:
+    """One warm worker; HTTP health checks never acquire its request lock."""
+
+    def __init__(self):
+        self.process = subprocess.Popen(
+            [sys.executable, str(ROOT / "sage_worker.py")],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True, bufsize=1)
+        self.lock = threading.Lock()
+        self.info = json.loads(self.process.stdout.readline())
+
+    def request(self, path, body):
+        with self.lock:
+            if self.process.poll() is not None:
+                raise RuntimeError("The Sage worker stopped.")
+            self.process.stdin.write(json.dumps(dict(path=path, body=body))+"\n")
+            self.process.stdin.flush()
+            line = self.process.stdout.readline()
+            if not line:
+                raise RuntimeError("The Sage worker stopped during the computation.")
+            return json.loads(line)
+
+    def close(self):
+        self.process.terminate()
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait()
+
+
+WORKER = None
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -93,10 +94,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == "/health":
-            self._json(200, {"status": "ok", "models": len(DATABASE.index["models"]),
-                             "api_version": API_VERSION, "scope": "fiberwise-narrow"})
+            if WORKER.process.poll() is None:
+                self._json(200, WORKER.info)
+            else:
+                self._json(503, {"status": "unavailable", "error": "The Sage worker stopped."})
         elif self.path == "/api":
-            self._json(200, {"name": "Threefold Explorer API", "version": API_VERSION})
+            self._json(200, {"name": "Threefold Explorer API", "version": WORKER.info["api_version"]})
         else:
             self._json(404, {"error": "Not found."})
 
@@ -111,12 +114,17 @@ class Handler(BaseHTTPRequestHandler):
             body = json.loads(self.rfile.read(length))
             if not isinstance(body, dict):
                 raise ValueError("The request body must be a JSON object.")
-            self._json(200, payload_for(self.path, body))
+            response = WORKER.request(self.path, body)
+            self._json(response["status"], response["body"])
         except KeyError as error:
             self._json(404 if str(error) == "'Unknown endpoint'" else 422,
                        {"error": str(error).strip("'")})
         except (ValueError, TypeError, ArithmeticError, NotImplementedError) as error:
             self._json(422, {"error": str(error)})
+        except (BrokenPipeError, ConnectionResetError):
+            self.log_message("Client disconnected before receiving the result.")
+        except RuntimeError as error:
+            self._json(503, {"error": str(error)})
         except Exception:
             traceback.print_exc()
             self._json(500, {"error": "The Sage computation failed unexpectedly."})
@@ -126,6 +134,10 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    WORKER = SageWorker()
     print("Threefold Explorer API on port %d with %d models" %
-          (PORT, len(DATABASE.index["models"])), flush=True)
-    HTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+          (PORT, WORKER.info["models"]), flush=True)
+    try:
+        ThreadingHTTPServer(("0.0.0.0", PORT), Handler).serve_forever()
+    finally:
+        WORKER.close()

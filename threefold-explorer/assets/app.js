@@ -24,6 +24,12 @@
     box.hidden = !message;
   }
 
+  function stageError(id, error = null) {
+    const box = $(id);
+    box.textContent = error ? `Error: ${error.message}` : "";
+    box.hidden = !error;
+  }
+
   function lock(id, locked) {
     const element = $(id);
     element.classList.toggle("locked", locked);
@@ -198,6 +204,8 @@
   }
 
   function invalidatePairing() {
+    stageError("#linearization-error");
+    stageError("#logs-error");
     if (!state.surface) return;
     state.pair = null;
     state.logSchema = null;
@@ -241,6 +249,7 @@
   }
 
   function updateDegree() {
+    stageError("#logs-error");
     state.logSchema = null;
     lock("#logs-step", true);
     $("#results").hidden = true;
@@ -267,6 +276,7 @@
   }
 
   function renderLogs(schema) {
+    stageError("#logs-error");
     state.logSchema = schema;
     const ambient = $("#coordinates").value === "ambient";
     $("#log-row").innerHTML = schema.sites.map((site) => {
@@ -299,6 +309,8 @@
   }
 
   async function prepareLogs() {
+    notice("");
+    stageError("#linearization-error");
     const payload = currentBasePayload();
     payload.linearization_divisor = weights();
     const schema = await post("/log-schema", payload);
@@ -391,6 +403,8 @@
     const button = $("#compute");
     setBusy(button, true, "Computing with Sage…");
     notice("");
+    stageError("#logs-error");
+    $("#results").hidden = true;
     try {
       const payload = currentBasePayload();
       payload.linearization_divisor = weights();
@@ -398,7 +412,7 @@
       payload.coordinates = $("#coordinates").value;
       const result = await post("/compute", payload);
       renderResult(result);
-    } catch (error) { notice(error.message, true); }
+    } catch (error) { stageError("#logs-error", error); }
     finally { setBusy(button, false); }
   }
 
@@ -478,10 +492,14 @@
         input.value = savedWeights[index] || 0;
       });
       updateDegree();
-    } catch (error) { state.smoothSlots -= 1; notice(error.message, true); }
+    } catch (error) { state.smoothSlots -= 1; stageError("#linearization-error", error); }
   });
   $("#prepare-logs").addEventListener("click", async () => {
-    try { await prepareLogs(); } catch (error) { notice(error.message, true); }
+    try { await prepareLogs(); } catch (error) { stageError("#linearization-error", error); }
+  });
+  $("#log-row").addEventListener("input", () => {
+    stageError("#logs-error");
+    $("#results").hidden = true;
   });
   $("#coordinates").addEventListener("change", () => state.logSchema && renderLogs(state.logSchema));
   $("#compute").addEventListener("click", runComputation);

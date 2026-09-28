@@ -12,3 +12,5 @@ Validated 28 September 2026 using SageMath 10.9.
 - JavaScript syntax and Git whitespace checks pass. Browser checks cover preset loading, the topology result, mixed narrowness, and the component-limit warning.
 
 These are implementation regression checks within the geometric scope described in MATHEMATICAL_SCOPE.md. They do not replace the mathematical derivations retained in the research workspace.
+
+The persistent-worker HTTP integration test also passes: a real OS56 computation ran while 52 concurrent health probes completed (maximum local latency 0.010 seconds). Browser checks verified divisor and log-modification errors beneath their corresponding sections.

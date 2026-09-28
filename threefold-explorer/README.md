@@ -39,3 +39,5 @@ The GitHub Pages repository hosts the static frontend. `render.yaml` describes a
 separate Docker web service built from `api/Dockerfile`. After that service is
 created, put its HTTPS `/api` address in `assets/config.js` and keep
 `ALLOWED_ORIGINS=https://philip-engel.github.io` on the service.
+
+The HTTP process stays responsive while one persistent Sage subprocess handles computations serially. Health checks do not wait for a Sage calculation. Run the transport integration check with Sage’s Python and `api/tests/service_test.py`.

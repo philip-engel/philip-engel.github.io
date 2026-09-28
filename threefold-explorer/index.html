@@ -6,9 +6,9 @@
   <meta name="description" content="Compute integral cohomology and fundamental groups of marked complex threefolds from rational elliptic surface data.">
   <title>Threefold Explorer</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="assets/styles.css?v=20260928-1">
+  <link rel="stylesheet" href="assets/styles.css?v=20260928-2">
   <script defer src="assets/config.js"></script>
-  <script defer src="assets/app.js?v=20260928-1"></script>
+  <script defer src="assets/app.js?v=20260928-2"></script>
 </head>
 <body>
   <a class="skip-link" href="#explorer">Skip to explorer</a>
@@ -133,7 +133,7 @@
         <strong id="degree-required">—</strong>
       </div>
       <div id="linearization-row" class="slot-row"></div>
-      <div id="linearization-error" class="inline-result error" hidden></div>
+      <div id="linearization-error" class="inline-result error" aria-live="polite" hidden></div>
       <div class="row-actions">
         <button id="add-smooth" class="button secondary" type="button">Add a smooth I0 fiber</button>
         <button id="prepare-logs" class="button primary" type="button">Continue to log modifications</button>
@@ -154,6 +154,7 @@
       </div>
       <div id="log-row" class="log-grid"></div>
       <button id="compute" class="button compute-button" type="button">Compute topology</button>
+      <div id="logs-error" class="inline-result error" aria-live="polite" hidden></div>
     </section>
 
     <section id="results" class="results-card" hidden aria-live="polite">
