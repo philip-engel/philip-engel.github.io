@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Runtime database
 
 The local-model database is the fast lookup layer for the narrow-Q topology
@@ -19,9 +20,8 @@ homotopies, inverse certificates, and provenance hashes are deliberately absent.
 They are required to derive or independently audit an entry, but are not inputs
 to the global topology calculation.
 
-The deployment also contains the checked parameterized constructors for the
-prescribed A2 Mumford filling and quadratic I_n* quotient. If one of these
-models is absent, the service constructs it, removes its derivation witnesses,
-and caches the compact record for the life of the container. Mumford inputs are
-bounded by 64 components and linearization order 12. Other local families stay
-read-only and are selected from the finite table.
+The deployment is entirely read-only. The prescribed A2 Mumford fillings are
+tabulated for every allowed input with at most 12 components and linearization
+order at most 12. The quadratic I_n* quotient table is complete in the stated
+exactly-invariant regime. Request-time work consists only of lookup, integral
+boundary re-marking, and the global Mayer--Vietoris and van Kampen calculations.

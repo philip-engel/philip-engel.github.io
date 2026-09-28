@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 (() => {
   "use strict";
 
@@ -246,8 +247,8 @@
       const match = /^I(\d+)$/.exec(slot.type);
       if (!order || !match) return;
       const components = Math.max(1, Number(match[1])) * order;
-      if (components > 64) {
-        error = "Error: The Mumford construction exceeds the allowed number of components (64).";
+      if (components > 12) {
+        error = "Error: The Mumford construction exceeds the allowed number of components (12).";
       } else if (order > 12 && !error) {
         error = "Error: The Mumford construction exceeds the allowed linearization order (12).";
       }

@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 """Small, JSON-ready facade for a future Threefold Explorer web interface.
 
 The mathematical engine intentionally returns rich Sage objects.  This module
@@ -200,7 +201,6 @@ def compute(payload, *, verbose=False, database=None):
     result = pm.explore_narrow_q(os_entry, P, Q, weights, logs,
         profile=profile, coordinates=payload.get('coordinates', 'invariant'),
         database=database,
-        max_components=_integer(payload.get('max_components', 64), 'max_components'),
         recognition_seconds=_integer(payload.get('recognition_seconds', 0), 'recognition_seconds'),
         verbose=verbose)
     groups = result['outcome']['cohomology']
