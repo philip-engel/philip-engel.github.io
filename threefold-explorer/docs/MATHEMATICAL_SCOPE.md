@@ -1,4 +1,3 @@
-/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Mathematical scope
 
 The complete entry point is `explorer_api.compute`, which calls

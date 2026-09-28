@@ -1,4 +1,3 @@
-/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Runtime database
 
 The local-model database is the fast lookup layer for the narrow-Q topology
