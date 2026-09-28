@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/styles.css?v=20260928-2">
   <script defer src="assets/config.js"></script>
-  <script defer src="assets/app.js?v=20260928-3"></script>
+  <script defer src="assets/app.js?v=20260928-4"></script>
 </head>
 <body>
   <a class="skip-link" href="#explorer">Skip to explorer</a>
@@ -70,12 +70,21 @@
         <div class="example-actions">
           <label>S⁶ examples
             <select id="s6-example">
-              <option value="original">IV* + III + I₁ · OS49</option>
-              <option value="split">III* + 3 I₁ · OS43</option>
-              <option value="os45">I₈ + 4 I₁ · OS45</option>
-              <option value="os47">I₇ + I₂ + 3 I₁ · OS47</option>
-              <option value="os55">I₅ + I₄ + 3 I₁ · OS55</option>
-              <option value="os56">I₅ + I₃ + I₂ + 2 I₁ · OS56</option>
+              <optgroup label="Established examples">
+                <option value="original">IV* + III + I₁ · OS49</option>
+                <option value="split">III* + 3 I₁ · OS43</option>
+                <option value="os45">I₈ + 4 I₁ · OS45</option>
+                <option value="os47">I₇ + I₂ + 3 I₁ · OS47</option>
+                <option value="os55">I₅ + I₄ + 3 I₁ · OS55</option>
+                <option value="os56">I₅ + I₃ + I₂ + 2 I₁ · OS56</option>
+              </optgroup>
+              <optgroup label="Additional rank-one examples">
+                <option value="os49-default">I₂ + IV* + 2 I₁ · OS49</option>
+                <option value="os45-ii">I₈ + II + 2 I₁ · OS45</option>
+                <option value="os47-ii">I₇ + I₂ + I₁ + II · OS47</option>
+                <option value="os55-ii">I₅ + I₄ + II + I₁ · OS55</option>
+                <option value="os56-iv">I₅ + I₂ + IV + I₁ · OS56</option>
+              </optgroup>
             </select>
           </label>
           <button class="button ghost" id="load-s6-example" type="button">Load selected S⁶ example</button>
