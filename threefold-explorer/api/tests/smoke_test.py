@@ -1,9 +1,8 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 """Fast checks for the curated project and its web-facing facade."""
 from pathlib import Path
 import json
-import shutil
 import sys
-import tempfile
 import sage.all as s
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,8 +18,8 @@ import threefold_topology as top
 
 database = LocalModelDatabase()
 info = database.info(verbose=False)
-assert info['models'] == 487
-assert len(list((ROOT/'engine'/'local_model_database'/'objects').glob('*.json'))) == 487
+assert info['models'] == 669
+assert len(list((ROOT/'engine'/'local_model_database'/'objects').glob('*.json'))) == 669
 for row in database.index['models'].values():
     record = database.get(row['id'])
     assert 'retained_geometry' not in record
@@ -66,41 +65,40 @@ star_result = compute(dict(os_entry=entry, P=P, Q=Q, linearization_divisor=weigh
     log_data=logs, coordinates='ambient'))
 assert star_result['local_models'][0]['family'] == 'star_semistable_quotient'
 
-# A cache miss must invoke the bounded Mumford constructor.  This is the
-# IV* + III + I1 input with P=1, Q=12 and a double zero at I1.
-with tempfile.TemporaryDirectory() as temporary:
-    runtime = Path(temporary)/'database'
-    shutil.copytree(ROOT/'engine'/'local_model_database', runtime)
-    dynamic = LocalModelDatabase(runtime)
-    doubled = compute(dict(os_entry=49, profile='III', P=[1], Q=[12],
-        linearization_divisor=[0,0,2],
-        log_data=[['0','1/3'],['0','1/4'],None], coordinates='invariant'),
-        database=dynamic)
-    assert doubled['population'] == {'created':1,'reused':0}
-    assert doubled['local_models'][-1]['parameters']['weight'] == 2
-    assert [row['label'] for row in doubled['cohomology']] == [
-        'Z','0','Z','Z/2','Z + Z/2','0','Z']
-    repeated = compute(dict(os_entry=49, profile='III', P=[1], Q=[12],
-        linearization_divisor=[0,0,2],
-        log_data=[['0','1/3'],['0','1/4'],None], coordinates='invariant'),
-        database=dynamic)
-    assert repeated['population'] == {'created':0,'reused':1}
+# The previously slow IV* + III + I1 double-zero case is a pure lookup.
+doubled = compute(dict(os_entry=49, profile='III', P=[1], Q=[12],
+    linearization_divisor=[0,0,2],
+    log_data=[['0','1/3'],['0','1/4'],None], coordinates='invariant'))
+assert doubled['population'] == {'created':0,'reused':1}
+assert doubled['local_models'][-1]['parameters']['weight'] == 2
+assert [row['label'] for row in doubled['cohomology']] == [
+    'Z','0','Z','Z/2','Z + Z/2','0','Z']
 
-    try:
-        compute(dict(os_entry=49, profile='III', P=[1], Q=[78],
-            linearization_divisor=[0,0,13], log_data=[None,None,None]),
-            database=dynamic)
-    except ValueError as error:
-        assert 'allowed linearization order (12)' in str(error)
-    else:
-        raise AssertionError('The Mumford order bound was not enforced.')
+# Every bounded Mumford parameter is present before the service starts.
+count=0
+for n in range(1,10):
+    for weight in range(1,min(pm.MAX_MUMFORD_ORDER,pm.MAX_MUMFORD_COMPONENTS//n)+1):
+        for component in range(n):
+            for sign in (1,-1):
+                parameters=dict(n=n,P_component=component,weight=sign*weight,tiling='A2')
+                assert database.find('mumford',parameters) is not None
+                count+=1
+for weight in range(1,pm.MAX_MUMFORD_ORDER+1):
+    for sign in (1,-1):
+        assert database.find('mumford',dict(n=0,P_component=0,weight=sign*weight,tiling='A2')) is not None
+        count+=1
+assert count == 212
+try:
+    pm.check_mumford_bounds(7,2)
+except ValueError as error:
+    assert 'allowed number of components (12)' in str(error)
+else:
+    raise AssertionError('The Mumford component bound was not enforced.')
+try:
+    pm.check_mumford_bounds(0,13)
+except ValueError as error:
+    assert 'allowed linearization order (12)' in str(error)
+else:
+    raise AssertionError('The Mumford order bound was not enforced.')
 
-    # The same runtime path is parameterized in the positive index n for I_n*;
-    # n=7 lies beyond the seed table and checks the general constructor.
-    parameters = dict(n=7,e=1,b=1,scalar=1,circle=1,resolution='minimal')
-    star_record = pm.star_record(**parameters)
-    star_record.pop('retained_geometry',None)
-    dynamic.add_model(star_record)
-    assert dynamic.find('star_semistable_quotient',parameters) is not None
-
-print('PASS: compact seed database, dynamic Mumford cache, manuscript S6 cases, and I_n* lookup')
+print('PASS: complete read-only database, bounded Mumford table, manuscript S6 cases, and I_n* lookup')

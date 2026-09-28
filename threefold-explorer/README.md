@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Threefold Explorer web application
 
 This directory contains the public interface and the containerized Sage service.
@@ -5,7 +6,7 @@ This directory contains the public interface and the containerized Sage service.
 ## Structure
 
 - `index.html` and `assets/`: static GitHub Pages frontend;
-- `api/`: SageMath 10.9 service, compressed 487-model seed database, and bounded parameterized Mumford/I_n* constructors;
+- `api/`: SageMath 10.9 service, compressed 669-model read-only database with complete bounded Mumford and I_n* lookup tables;
 - `docker-compose.yml`: local full-stack launch;
 - `docs/`: public scope and runtime documentation.
 

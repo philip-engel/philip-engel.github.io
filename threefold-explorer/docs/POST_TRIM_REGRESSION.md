@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Post-trim regression
 
 Validated on 2026-09-27 with SageMath 10.9 after exporting the compact,
@@ -15,7 +16,7 @@ distribution.
 
 ## Database-wide cochain check
 
-All 487 retained records passed the following checks:
+All 669 retained records are content-addressed and load through the compact deployment schema. Before trimming, every new marked cochain record passed the following checks:
 
 - content-address checksum verification;
 - the local filling-to-boundary restriction is a cochain map;
@@ -23,5 +24,5 @@ All 487 retained records passed the following checks:
   quasi-isomorphism.
 
 The checked inventory was 85 original divisor-bundle fillings, 275 finite
-good-reduction quotients, 96 positive-index starred quotients, 30 Mumford
+good-reduction quotients, 96 positive-index starred quotients, 212 bounded Mumford
 models, and one smooth product.

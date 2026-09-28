@@ -1,3 +1,4 @@
+/opt/homebrew/Library/Homebrew/cmd/shellenv.sh: line 18: /bin/ps: Operation not permitted
 # Mathematical scope
 
 The complete entry point is `explorer_api.compute`, which calls
@@ -16,7 +17,7 @@ Mayer–Vietoris and van Kampen implementations.
   monodromy.
 - Their torsion order divides the minimal semistable-reduction degree.
 - Mumford compactifications use the prescribed A2 tiling or rank-one wheel.
-- Mumford models have at most 64 components and linearization order at most 12.
+- Mumford models have at most 12 components and linearization order at most 12.
 - Quotient compactifications use the selected minimal resolution.
 
 ## `None` and explicit zero
@@ -45,7 +46,7 @@ smooth model.
 - log order not dividing the semistable-reduction degree;
 - linearization zeros or poles on additive fibers;
 - Mumford subdivisions other than the prescribed A2 model, or models beyond
-  the displayed runtime bounds;
+  the displayed lookup bounds;
 - a general recognition theorem assigning a familiar name to every finitely
   presented fundamental group.
 
