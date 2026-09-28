@@ -8,7 +8,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/styles.css?v=20260928-2">
   <script defer src="assets/config.js"></script>
-  <script defer src="assets/app.js?v=20260928-2"></script>
+  <script defer src="assets/app.js?v=20260928-3"></script>
 </head>
 <body>
   <a class="skip-link" href="#explorer">Skip to explorer</a>
@@ -68,17 +68,17 @@
         </label>
         <button class="button primary" type="submit">Load surface</button>
         <div class="example-actions">
-          <button class="button ghost" id="load-original-example" type="button">Load the IV* + III + I₁ example</button>
-          <button class="button ghost" id="load-split-example" type="button">Load the III* + I₁ + I₁ + I₁ example</button>
-          <label>Semistable S⁶ examples
-            <select id="semistable-example">
-              <option value="os56">I₅ + I₃ + I₂ + 2 I₁ · OS56</option>
+          <label>S⁶ examples
+            <select id="s6-example">
+              <option value="original">IV* + III + I₁ · OS49</option>
+              <option value="split">III* + 3 I₁ · OS43</option>
               <option value="os45">I₈ + 4 I₁ · OS45</option>
               <option value="os47">I₇ + I₂ + 3 I₁ · OS47</option>
               <option value="os55">I₅ + I₄ + 3 I₁ · OS55</option>
+              <option value="os56">I₅ + I₃ + I₂ + 2 I₁ · OS56</option>
             </select>
           </label>
-          <button class="button ghost" id="load-semistable-example" type="button">Load selected semistable example</button>
+          <button class="button ghost" id="load-s6-example" type="button">Load selected S⁶ example</button>
         </div>
       </form>
       <div id="surface-summary" class="surface-summary" hidden>

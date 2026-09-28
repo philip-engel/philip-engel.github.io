@@ -474,9 +474,7 @@
     surfaceReloadTimer = setTimeout(() => loadSurface("default").catch(() => {}), 300);
   });
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
-  $("#load-original-example").addEventListener("click", () => loadExample("original"));
-  $("#load-split-example").addEventListener("click", () => loadExample("split"));
-  $("#load-semistable-example").addEventListener("click", () => loadExample($("#semistable-example").value));
+  $("#load-s6-example").addEventListener("click", () => loadExample($("#s6-example").value));
   $("#sections-form").addEventListener("submit", async (event) => {
     event.preventDefault(); notice("");
     try { await checkSections(); } catch (error) { showSectionError(error); }
