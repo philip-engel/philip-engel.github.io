@@ -450,6 +450,11 @@
       vectors: { 3: "0, 1/6" },
       label: "OS47: I₇ + I₂ + I₁ + II, with the full-order twist at II. Press “Compute topology”.",
     },
+    "os47-iii": {
+      osEntry: 47, profile: "III", P: "14", Q: "1", smoothSlots: 1,
+      weights: [0, 1, 0, 0, 0], vectors: { 4: "0, 0, 0, 1" },
+      label: "OS47: I₇ + III + 2 I₁, with one simple zero at I₁ and primitive integral clutching at the added smooth fiber. Press “Compute topology”.",
+    },
     "os55-ii": {
       osEntry: 55, profile: "II", P: "20", Q: "1", weights: [0, 0, 0, 1],
       vectors: { 2: "0, 1/6" },
