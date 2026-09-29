@@ -18,6 +18,18 @@ to avoid hundreds of tiny source files. The Docker build expands it into the
 path expected by the engine. A local non-container run may either retain an
 expanded development copy there or unpack the archive first.
 
+The archive contains 865 reduced local cochain models and 450 shared exact
+attachment formula tables. Ship the archive and engine modules together:
+`symbolic_attachments.py` resolves the formula references and evaluates the
+integral marking and clutching maps. A warm worker caches decoded records;
+requests do not build local models or compile formula tables.
+
+Run `sage -python tests/worker_bundle_test.py` to check the shipped archive in
+an isolated temporary directory through the persistent worker protocol. Run
+`sage -python tests/smoke_test.py` to check the expanded database, and
+`sage -python tests/service_test.py` for HTTP integration where local listening
+sockets are permitted.
+
 Set `ALLOWED_ORIGINS` to a comma-separated list of exact HTTPS origins. The
 default permits the GitHub Pages site and local development on port 8080.
 
