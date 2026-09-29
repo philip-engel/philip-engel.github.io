@@ -18,10 +18,14 @@ import threefold_topology as top
 database = LocalModelDatabase()
 info = database.info(verbose=False)
 assert info['models'] == 865
+assert database.index['cochain_representation'] == 'integral-unit-contraction-v1'
 assert len(list((ROOT/'engine'/'local_model_database'/'objects').glob('*.json'))) == 865
 for row in database.index['models'].values():
     record = database.get(row['id'])
     assert 'retained_geometry' not in record
+    assert record['attachment_formula']['format'] == 'integral-binomial-jet-v1'
+    assert 'attachment_formula_ref' in record
+    assert set(record['stalk']) == {'groups'}
     normalization = record.get('boundary_normalization', {})
     assert set(normalization) <= {'monodromy', 'local_to_standard', 'line_character'}
     if record['family'] == 'finite_quotient' and record['parameters']['resolution'] != 'free':
@@ -54,6 +58,15 @@ split_preset = compute(dict(os_entry=43,P=[1],Q=[2],
     linearization_divisor=[0,0,0,1],
     log_data=[['0','-1/4'],None,None,None],coordinates='invariant'))
 assert split_preset['S6_for_supplied_smooth_model']
+
+# The III-collision preset uses the same invariant-coordinate input as the UI.
+collision_surface = describe_os_entry(47, profile='III')
+assert sorted(row['type'] for row in collision_surface['fibers']) == ['I1','I1','I7','III']
+collision_preset = compute(dict(os_entry=47, profile='III', P=[14], Q=[1],
+    linearization_divisor=[0,1,0,0,0], log_data=[None]*4+[[0,0,0,1]],
+    coordinates='invariant'))
+assert collision_preset['S6_for_supplied_smooth_model']
+assert collision_preset['population']['created'] == 0
 
 # Exercise the separate positive-index I_n* lookup and marking path.
 entry, P = 16, (1, 0, 0)
