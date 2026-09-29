@@ -72,7 +72,8 @@ def parameterized_attachment(record,binding,selection):
     # Original integral clutching uses +theta; quotient deck lift uses -theta.
     signed=-clutch if is_mumford else clutch
     normalization=record['boundary_normalization']
-    change=marked_transport(normalization['monodromy'],W,signed)
+    change=marked_transport(normalization['monodromy'],W,signed,
+                            action_formula=record.get('attachment_formula'))
     i=binding['index']-1
     if change['monodromy']!=binding['monodromies'][i]:raise ValueError('Parameterized monodromy marking mismatch.')
     if tuple(selection['full_log_vector'])!=tuple(binding['log_vectors'][i]):raise ValueError('Integral log lift mismatch.')

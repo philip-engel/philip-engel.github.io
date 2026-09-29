@@ -182,6 +182,7 @@ class LocalModelDatabase:
     """
     def __init__(self, directory=None):
         self.directory = Path(directory) if directory is not None else DEFAULT_DATABASE
+        self._formula_cache = {}
         self._object_cache = {}
         path = self.directory/'index.json'
         self.index = json.loads(path.read_text()) if path.exists() else dict(
@@ -209,6 +210,8 @@ class LocalModelDatabase:
             raise ValueError('Database content checksum mismatch: ' + identity)
         if result.get('schema') != SCHEMA:
             raise ValueError('Unsupported record schema.')
+        from symbolic_attachments import resolve_model_formula
+        result = resolve_model_formula(result, self.directory, self._formula_cache)
         self._object_cache[identity] = result
         return result
 
@@ -252,6 +255,10 @@ class LocalModelDatabase:
                          quasi_isomorphism=True)
             validate_map(pair['boundary'], standard, normalization['local_to_standard'],
                          quasi_isomorphism=True)
+        from symbolic_attachments import compile_model_formula
+        formula = compile_model_formula(record)
+        if formula is not None:
+            record['attachment_formula'] = formula
         record['capabilities'] = model_capabilities(record)
         identity = self._store(record)
         key = fingerprint((record['family'], record['parameters']))

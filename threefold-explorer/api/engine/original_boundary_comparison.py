@@ -386,7 +386,8 @@ def original_attachment(record, binding, selection):
     index = binding['index']-1
     if W*theta != s.vector(s.QQ,binding['log_vectors'][index]):
         raise ValueError('The full integral clutch disagrees with the input binding.')
-    transport = marked_transport(normalization['monodromy'], W, -theta)
+    transport = marked_transport(normalization['monodromy'], W, -theta,
+                                 action_formula=record.get('attachment_formula'))
     if transport['monodromy'] != binding['monodromies'][index]:
         raise ValueError('The original boundary marking disagrees with the bound monodromy.')
     maps = {q:transport['comparison'][q]*normalization['local_to_standard'][q] for q in range(6)}
@@ -410,4 +411,3 @@ def original_attachment(record, binding, selection):
                        meridian_to_canonical=transport['meridian_to_canonical']))
     from local_model_database import apply_divisor_base_clutch
     return apply_divisor_base_clutch(attachment,binding)
-

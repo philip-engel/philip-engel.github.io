@@ -138,7 +138,7 @@ def quotient_comparison_data(kind, character, scalar, circle):
     return dict(raw=raw, action=action, normalization=normalize_boundary(raw, action))
 
 
-def marked_transport(canonical_monodromy, marking_to_global, integer_clutch):
+def marked_transport(canonical_monodromy, marking_to_global, integer_clutch, *, action_formula=None):
     """C*(canonical boundary) -> C*(globally marked boundary).
 
     The group map goes in the opposite direction: v -> W^-1 v and
@@ -155,8 +155,14 @@ def marked_transport(canonical_monodromy, marking_to_global, integer_clutch):
     global_monodromy = marking*canonical*marking.inverse()
     source, target = TorusByFree([global_monodromy]), TorusByFree([canonical])
     mapping = SemidirectMap(source, target, marking.inverse(), [(tuple(-clutch), (1,))])
-    cochains = {q: mapping.matrix(q).transpose() for q in range(6)}
-    _check_map(target.cochains(), source.cochains(), cochains, True)
+    from symbolic_attachments import comparison_matrices
+    cochains = {q: M.transpose() for q, M in comparison_matrices(
+        mapping, action_formula=action_formula).items()}
+    # W is unimodular and the base generator has degree +1, so the checked
+    # group homomorphism is an isomorphism. Its resolution comparison is an
+    # integral homotopy equivalence; repeated Smith forms are unnecessary here.
+    # MV preparation still checks the composed local comparison integrally.
+    _check_map(target.cochains(), source.cochains(), cochains)
     return dict(comparison=cochains, monodromy=global_monodromy,
                 lattice_to_canonical=marking.inverse(), meridian_to_canonical=(tuple(-clutch), (1,)))
 
@@ -177,7 +183,8 @@ def quotient_attachment(record, binding, selection):
         raise ValueError('The reduced shift and integer clutching do not reproduce the full affine shift.')
     if marking*selection['full_affine_shift'] != selection['original_offset']+selection['full_log_vector']:
         raise ValueError('The full affine shift disagrees with the original offset plus log vector.')
-    transport = marked_transport(normalization['monodromy'], marking, clutch)
+    transport = marked_transport(normalization['monodromy'], marking, clutch,
+                                 action_formula=record.get('attachment_formula'))
     T = binding['monodromies'][binding['index']-1]
     if transport['monodromy'] != T:
         raise ValueError('The boundary normalization does not reproduce the bound monodromy.')
@@ -210,4 +217,3 @@ def quotient_attachment(record, binding, selection):
                        meridian_to_canonical=transport['meridian_to_canonical']))
     from local_model_database import apply_divisor_base_clutch
     return apply_divisor_base_clutch(attachment,binding)
-

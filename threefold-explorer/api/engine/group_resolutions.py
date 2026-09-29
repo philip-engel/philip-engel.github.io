@@ -154,15 +154,21 @@ class TorusByFree:
         return result
 
     def cochains(self):
+        """Augmented differential, directly from exterior powers of the actions.
+
+        This simplifies the differential only. Comparisons still retain their
+        equivariant homotopy terms (via symbolic_attachments at runtime).
+        """
         ranks = tuple(len(self.basis(q)) for q in range(self.dimension+1))
         differentials = {}
-        for q in range(1, self.dimension+1):
-            matrix = s.zero_matrix(s.ZZ, ranks[q-1], ranks[q])
-            index = {axes: i for i, axes in enumerate(self.basis(q-1))}
-            for j, axes in enumerate(self.basis(q)):
-                for (_, face), coefficient in self.boundary({(self.one, axes): 1}).items():
-                    matrix[index[face], j] += coefficient
-            differentials[q-1] = matrix.transpose()
+        for q in range(self.dimension):
+            matrix = s.zero_matrix(s.ZZ, ranks[q+1], ranks[q])
+            fiber = int(s.binomial(self.n, q))
+            next_fiber = int(s.binomial(self.n, q+1))
+            for i, inverse in enumerate(self.inverse_matrices):
+                matrix[next_fiber+i*fiber:next_fiber+(i+1)*fiber, :fiber] = (
+                    top._exterior(inverse, q).transpose()-s.identity_matrix(s.ZZ, fiber))
+            differentials[q] = matrix
         return dict(ranks=ranks, differentials=differentials)
 
 
@@ -288,6 +294,7 @@ def invert_quasi_isomorphism(source, target, maps):
 
 @lru_cache(maxsize=int(32))
 def _complement_maps_cached(entries):
+    from symbolic_attachments import comparison_matrices
     matrices = tuple(s.matrix(s.ZZ, 4, 4, values) for values in entries)
     target = TorusByFree(matrices[:-1])
     maps = []
@@ -296,7 +303,7 @@ def _complement_maps_cached(entries):
         word = ((i+1,) if i < len(matrices)-1
                 else tuple(-j for j in range(len(matrices)-1, 0, -1)))
         mapping = SemidirectMap(source, target, s.identity_matrix(s.ZZ, 4), [((0, 0, 0, 0), word)])
-        maps.append({q: mapping.matrix(q).transpose() for q in range(6)})
+        maps.append({q: M.transpose() for q, M in comparison_matrices(mapping).items()})
     return tuple(maps)
 
 
