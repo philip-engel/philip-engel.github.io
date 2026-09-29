@@ -430,6 +430,11 @@
       vectors: { 0: "0, -1/4" },
       label: "The III* + I₁ + I₁ + I₁ example is ready. Press “Compute topology”.",
     },
+    cuspidal: {
+      osEntry: 43, profile: "II", P: "1", Q: "2", weights: [0, 0, 1],
+      vectors: { 0: "0, -1/4" },
+      label: "The III* + II + I₁ example is ready. Press “Compute topology”.",
+    },
     "os49-default": {
       osEntry: 49, profile: "default", P: "2", Q: "3", weights: [0, 0, 1, 0],
       vectors: { 1: "0, 1/3" },
