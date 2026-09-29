@@ -41,3 +41,12 @@ created, put its HTTPS `/api` address in `assets/config.js` and keep
 `ALLOWED_ORIGINS=https://philip-engel.github.io` on the service.
 
 The HTTP process stays responsive while one persistent Sage subprocess handles computations serially. Health checks do not wait for a Sage calculation. Run the transport integration check with Sage’s Python and `api/tests/service_test.py`.
+
+## Licensing
+
+The program code is available under the [MIT License](LICENSE-CODE.txt). The
+explanatory documentation is available under
+[Creative Commons Attribution 4.0 International](LICENSE-DOCUMENTATION.md).
+The tabulated local-model database and unpublished mathematical derivation
+material are excluded from those licenses; see [COPYRIGHT.md](COPYRIGHT.md) for
+the precise scope.
