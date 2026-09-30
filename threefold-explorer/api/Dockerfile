@@ -2,7 +2,7 @@ FROM sagemath/sagemath:10.9
 
 USER root
 WORKDIR /app
-COPY engine/*.py /app/engine/
+COPY engine/*.py engine/collision_profiles.json /app/engine/
 COPY engine/local_model_database.tar.gz /tmp/local_model_database.tar.gz
 COPY service.py sage_worker.py /app/
 RUN tar -xzf /tmp/local_model_database.tar.gz -C /app/engine \

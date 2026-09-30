@@ -37,3 +37,9 @@ default permits the GitHub Pages site and local development on port 8080.
 docker build -t threefold-explorer-api .
 docker run --rm -p 8000:8000 threefold-explorer-api
 ```
+
+The OS collision lookup is `engine/collision_profiles.json`. Keep it beside
+`os_monodromy.py`; the Docker build and isolated worker test include it. It
+contains 215 alternate profiles, covering 279 fiber configurations together
+with the 74 defaults. Run `tests/collision_profiles_test.py` with Sage to check
+all 289 marked profiles.

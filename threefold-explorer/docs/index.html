@@ -24,6 +24,8 @@
 
       <p>In <strong>Step 1</strong>, choose an <strong>OS table number</strong> between 1 and 74. These are the entries in Oguiso and Shioda’s classification of the possible Mordell–Weil lattices of rational elliptic surfaces (<a href="https://www.researchgate.net/publication/240320684_The_Mordell-Weil_lattice_of_a_rational_elliptic_surface">Oguiso–Shioda, Main Theorem</a>). The explorer will display the singular fibers in their chosen order, together with the Mordell–Weil group and the number of generators used by the program.</p>
 
+      <p>The <strong>fiber collision profile</strong> selector covers all <strong>279 configurations</strong> in <a href="https://www.math.colostate.edu/~miranda/preprints/Perssonslist.pdf">Persson–Miranda's classification</a>, represented by 289 OS/profile choices. Some configurations occur with different Mordell–Weil groups. When changing profile, check the revised fiber order and section conditions.</p>
+
       <p>Once the surface <i>S</i> has loaded, move to <strong>Step 2</strong>. Choose a section <i>P</i>, expressed as an integral linear combination of the displayed generators. One can think of this as constructing the principal ℂ<sup>*</sup>-bundle <i>M</i><sup>×</sup>, where <i>M</i> = O<sub><i>S</i></sub>(<i>P</i>−<i>O</i>). Next choose a second section <i>Q</i>. Translation by <i>Q</i> defines an automorphism <i>t</i><sub><i>Q</i></sub> of <i>S</i>.</p>
 
       <p>At least one of <i>P</i> or <i>Q</i> must be narrow at every singular fiber: that is, at least one of the two sections must meet the identity component. The relevant congruence conditions are displayed on the right, together with the height-pairing matrix on MW(<i>S</i>).</p>
@@ -50,6 +52,8 @@
       <h2>How it works</h2>
 
       <p>The program first computes the monodromy of the underlying elliptic surface. Its initial representatives come from <a href="https://arxiv.org/pdf/math/0205062">Fukae, Table 3 and §5</a>, organized according to the Oguiso–Shioda classification.</p>
+
+      <p>The additional collision profiles use genus-zero <i>j</i>-map covers and quadratic twists following <a href="https://www.math.colostate.edu/~miranda/preprints/Perssonslist.pdf">Miranda, §3</a>. Their monodromy matrices and marked section cocycles are precomputed. The chosen MW marking preserves the default height matrix; it does not specify parallel transport through a particular degeneration. See the <a href="COLLISION_PROFILES.md">collision catalogue notes</a>.</p>
 
       <p>It then lifts the elliptic monodromy to the rank-four integral local system of the complex two-torus fibration. The lift is computed through the natural filtration associated with the principal ℂ<sup>*</sup>-bundle, using the local specialization data of <i>P</i> and <i>Q</i>, together with the order of the zero or pole of the linearization. The resulting formula is closely related to equation (4.9) of <a href="https://arxiv.org/pdf/2609.33785">Viaclovsky</a>.</p>
 

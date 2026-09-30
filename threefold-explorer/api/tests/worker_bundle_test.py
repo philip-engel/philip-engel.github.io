@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix='threefold-bundle-') as temporary:
     root = Path(temporary)
     engine = root / 'engine'
     engine.mkdir()
-    for source in (API / 'engine').glob('*.py'):
+    for source in list((API / 'engine').glob('*.py')) + [API / 'engine' / 'collision_profiles.json']:
         shutil.copy2(source, engine / source.name)
     for name in ('service.py', 'sage_worker.py'):
         shutil.copy2(API / name, root / name)
@@ -47,6 +47,9 @@ with tempfile.TemporaryDirectory(prefix='threefold-bundle-') as temporary:
 
     try:
         assert worker.info['models'] == 865 and worker.info['api_version'] == 2
+        surface6 = request('/api/os-entry', dict(os_entry=1, profile='6II'))
+        assert [row['type'] for row in surface6['fibers']] == ['II']*6
+        assert len(surface6['collision_profiles']) == 6
         pair = dict(os_entry=47, profile='III', P=[14], Q=[1])
         surface = request('/api/os-entry', pair)
         assert sorted(row['type'] for row in surface['fibers']) == ['I1','I1','I7','III']

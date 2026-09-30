@@ -106,7 +106,7 @@ def describe_os_entry(os_entry, profile='default'):
             narrowness_rule='('+' and '.join(row['display'] for row in p_constraints)+') OR ('+
                 ' and '.join(row['display'] for row in constraints)+')' if constraints else 'Both sections are narrow'))
     collisions = [dict(profile=name,
-        label='No selected collision' if name == 'default' else 'Collision profile producing %s' % name,
+        label=info['profile_labels'][name] + (' (default)' if name == 'default' else ''),
         selected=name == profile) for name in info['available_profiles']]
     return dict(api_version=API_VERSION, os_entry=info['os_entry'], profile=profile,
         collision_profiles=collisions, fibers=fibers,

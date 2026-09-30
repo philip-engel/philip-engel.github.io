@@ -12,6 +12,8 @@ from fractions import Fraction
 from functools import lru_cache
 from itertools import zip_longest
 from math import gcd, lcm
+from pathlib import Path
+import json
 import operator
 import textwrap
 
@@ -330,6 +332,36 @@ CONFLUENCES = {
     (56, "IV"): ((1,), 2), (56, "III"): ((1, 1), 2),
 }
 
+# Precomputed geometric J-map models and legacy braid/merger words.
+# Construction certificates and the offline builder are retained in the research tree.
+# Legacy names II, III and IV retain exactly their original markings.
+_PROFILE_DATA = json.loads((Path(__file__).with_name('collision_profiles.json')
+                           if '__file__' in globals() else Path('collision_profiles.json')).read_text())
+COLLISION_PROFILES = {(row['os_entry'], row['profile']): row
+                      for row in _PROFILE_DATA['profiles']}
+
+
+def available_profiles(os_entry):
+    """Stable profile identifiers, ordered from fewer to more collisions."""
+    names = [name for row, name in COLLISION_PROFILES if row == os_entry]
+    return ('default',) + tuple(sorted(names, key=lambda name: (
+        len(BASE_MODELS[os_entry])-len(COLLISION_PROFILES[os_entry, name]['fibers']), name)))
+
+
+def profile_fibers(os_entry, profile='default'):
+    if profile == 'default':
+        return tuple(f['type'] for f in BASE_MODELS[os_entry])
+    return tuple(COLLISION_PROFILES[os_entry, profile]['fibers'])
+
+
+def profile_label(os_entry, profile='default'):
+    """Display the complete fiber configuration, not the collision recipe."""
+    from collections import Counter
+    counts = Counter(profile_fibers(os_entry, profile))
+    kinds = sorted(counts, key=lambda kind: (-fiber_invariants(kind)[0], kind))
+    return ' + '.join(('%d ' % counts[kind] if counts[kind] > 1 else '') + kind
+                      for kind in kinds)
+
 
 def fiber_invariants(kind):
     """Euler number, root rank, root discriminant."""
@@ -418,15 +450,25 @@ def cocycle_pairing(fibers, p, q):
 def transport_confluence(fibers, cocycles, moves, merge_index, new_type):
     """Transport the SAME section basis through Hurwitz moves and a merger."""
     fibers, cocycles = deepcopy(fibers), deepcopy(cocycles)
-    for i in moves:
+    for move in moves:
+        i = move if move >= 0 else -move-1
         first, second = fibers[i:i + 2]
-        second_inverse = inverse(second["A"])
-        for cocycle in cocycles:
-            p, q = cocycle[i:i + 2]
-            changed = [a + b for a, b in zip(p, matvec(minus_identity(first["A"]), q))]
-            cocycle[i:i + 2] = [q, matvec(second_inverse, changed)]
-        fibers[i:i + 2] = [second, {"type": first["type"], "A": exact_integers(
-            multiply(multiply(second_inverse, first["A"]), second["A"]))}]
+        if move >= 0:
+            second_inverse = inverse(second["A"])
+            for cocycle in cocycles:
+                p, q = cocycle[i:i + 2]
+                changed = [a + b for a, b in zip(p, matvec(minus_identity(first["A"]), q))]
+                cocycle[i:i + 2] = [q, matvec(second_inverse, changed)]
+            fibers[i:i + 2] = [second, {"type": first["type"], "A": exact_integers(
+                multiply(multiply(second_inverse, first["A"]), second["A"]))}]
+        else:
+            changed_matrix = multiply(multiply(first['A'], second['A']), inverse(first['A']))
+            for cocycle in cocycles:
+                p, q = cocycle[i:i + 2]
+                changed = [a-b for a,b in zip(matvec(first['A'],q),
+                                              matvec(minus_identity(changed_matrix),p))]
+                cocycle[i:i + 2] = [changed,p]
+            fibers[i:i + 2] = [{'type':second['type'],'A':exact_integers(changed_matrix)},first]
     i = merge_index
     for cocycle in cocycles:
         p, q = cocycle[i:i + 2]
@@ -503,8 +545,8 @@ def _model(os_entry, profile="default"):
         raise ValueError("os_entry must be an integer from 1 through 74.")
     if not isinstance(profile, str):
         raise ValueError("profile must be a string, such as 'default' or 'III'.")
-    if profile != "default" and (os_entry, profile) not in CONFLUENCES:
-        options = ["default"] + sorted(name for row, name in CONFLUENCES if row == os_entry)
+    if profile != "default" and (os_entry, profile) not in COLLISION_PROFILES:
+        options = available_profiles(os_entry)
         raise ValueError(f"Unknown profile {profile!r}; available profiles: {', '.join(options)}.")
     return _cached_model(os_entry, profile)
 
@@ -518,8 +560,16 @@ def _cached_model(os_entry, profile):
     if orders != EXPECTED_TORSION.get(os_entry, ()):
         raise ArithmeticError("Computed torsion does not match the source table.")
     if profile != "default":
-        moves, merge_index = CONFLUENCES[os_entry, profile]
-        fibers, cocycles = transport_confluence(fibers, cocycles, moves, merge_index, profile)
+        record = COLLISION_PROFILES[os_entry, profile]
+        if 'matrices' in record:
+            fibers = [{'type':kind,'A':deepcopy(A)}
+                      for kind,A in zip(record['fibers'],record['matrices'])]
+            cocycles = deepcopy(record['cocycles'])
+        else:
+            for moves, merge_index, new_type in record['steps']:
+                fibers, cocycles = transport_confluence(fibers, cocycles, moves, merge_index, new_type)
+        if tuple(f['type'] for f in fibers) != tuple(record['fibers']):
+            raise ArithmeticError('Stored model does not reproduce its fiber profile.')
     if sum(fiber_invariants(f["type"])[0] for f in fibers) != 12:
         raise ArithmeticError("Fiber Euler numbers do not sum to twelve.")
     if rank != 8 - sum(fiber_invariants(f["type"])[1] for f in fibers):
@@ -646,7 +696,7 @@ def os_info(os_entry, *, profile="default", verbose=True):
     model = _model(os_entry, profile)
     rank, orders = model["rank"], model["torsion_orders"]
     pnames, qnames = variable_names(model), variable_names(model, "b")
-    profiles = ("default",) + tuple(sorted(name for row, name in CONFLUENCES if row == os_entry))
+    profiles = available_profiles(os_entry)
     info = {"os_entry": int(os_entry), "profile": profile, "available_profiles": profiles,
             "kodaira_types": tuple(f["type"] for f in model["fibers"]),
             "mw_rank": rank, "torsion_orders": orders,
@@ -657,6 +707,7 @@ def os_info(os_entry, *, profile="default", verbose=True):
             "mw_mod_narrow_invariants": model["narrow"]["quotient_invariants"],
             "component_maps": model["components"], "section_cocycles": model["cocycles"],
             "elliptic_matrices": tuple(item["A"] for item in model["fibers"]),
+            "profile_labels": {name: profile_label(os_entry, name) for name in profiles},
             "model_status": "marked matrix model; lift justified for geometric input; database realization remains separate"}
     if verbose:
         print(f"OS {os_entry} | profile: {profile}")
