@@ -11,6 +11,9 @@
     smoothSlots: 0,
   };
   let surfaceReloadTimer;
+  let loadingPreset = false;
+  let rationalSpherePresets;
+  let lastRandomPresetIndex = -1;
 
   function setService(kind, label) {
     $("#service-state").dataset.state = kind;
@@ -501,8 +504,49 @@
   }
 
   async function loadExample(name) {
-    const preset = examplePresets[name];
+    await loadPreset(() => examplePresets[name]);
+  }
+
+  function randomPresetIndex(count, previous) {
+    // Draw uniformly, omitting the previous choice after the first click.
+    const omitPrevious = previous >= 0 && previous < count;
+    const index = Math.floor(Math.random() * (count - (omitPrevious ? 1 : 0)));
+    return omitPrevious && index >= previous ? index + 1 : index;
+  }
+
+  async function loadRandomExample() {
+    let selectedIndex;
+    const loaded = await loadPreset(async () => {
+      if (!rationalSpherePresets) {
+        const response = await fetch("assets/rational-sphere-presets.json");
+        if (!response.ok) throw new Error("The random examples could not be loaded. Please try again.");
+        const presets = await response.json();
+        if (!Array.isArray(presets) || presets.length !== 99) {
+          throw new Error("The random examples are unavailable. Please reload the page.");
+        }
+        rationalSpherePresets = presets;
+      }
+      selectedIndex = randomPresetIndex(rationalSpherePresets.length, lastRandomPresetIndex);
+      const preset = rationalSpherePresets[selectedIndex];
+      return {
+        ...preset,
+        label: `A random Q-homology sphere is ready (OS${preset.osEntry}, P = ${preset.P}, Q = ${preset.Q}). Press “Compute topology”.`,
+      };
+    });
+    if (loaded) lastRandomPresetIndex = selectedIndex;
+  }
+
+  async function loadPreset(resolvePreset) {
+    if (loadingPreset) return false;
+    loadingPreset = true;
+    clearTimeout(surfaceReloadTimer);
+    const buttons = [$("#load-s6-example"), $("#load-rational-example")].filter(Boolean);
+    buttons.forEach((button) => setBusy(button, true, "Loading…"));
+    $("#compute").disabled = true;
+    stageError("#linearization-error");
+    stageError("#logs-error");
     try {
+      const preset = await resolvePreset();
       $("#os-entry").value = String(preset.osEntry);
       await loadSurface(preset.profile);
       $("#p-vector").value = preset.P;
@@ -522,7 +566,15 @@
         card.querySelector("input").value = vector;
       });
       notice(preset.label);
-    } catch (error) { notice(error.message, true); }
+      return true;
+    } catch (error) {
+      notice(error.message, true);
+      return false;
+    } finally {
+      loadingPreset = false;
+      buttons.forEach((button) => setBusy(button, false));
+      $("#compute").disabled = false;
+    }
   }
 
   $("#surface-form").addEventListener("submit", async (event) => {
@@ -535,6 +587,7 @@
   });
   $("#profile").addEventListener("change", () => loadSurface().catch(() => {}));
   $("#load-s6-example").addEventListener("click", () => loadExample($("#s6-example").value));
+  $("#load-rational-example")?.addEventListener("click", loadRandomExample);
   $("#sections-form").addEventListener("submit", async (event) => {
     event.preventDefault(); notice("");
     try { await checkSections(); } catch (error) { showSectionError(error); }
