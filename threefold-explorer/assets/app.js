@@ -455,6 +455,16 @@
       weights: [0, 1, 0, 0, 0], vectors: { 4: "0, 0, 0, 1" },
       label: "OS47: I₇ + III + 2 I₁, with one simple zero at I₁ and primitive integral clutching at the added smooth fiber. Press “Compute topology”.",
     },
+    "os47-iii-p7": {
+      osEntry: 47, profile: "III", P: "7", Q: "2", weights: [0, 1, 0, 0],
+      vectors: { 3: "0, 1/4" },
+      label: "OS47: P = 7G, Q = 2G, with the full order-four twist at III. Press “Compute topology”.",
+    },
+    "os49-iii-p2": {
+      osEntry: 49, profile: "III", P: "2", Q: "3", weights: [0, 0, 1],
+      vectors: { 0: "0, 1/3" },
+      label: "OS49: P = 2G, Q = 3G, with the full order-three twist at IV* and the original filling at III. Press “Compute topology”.",
+    },
     "os55-ii": {
       osEntry: 55, profile: "II", P: "20", Q: "1", weights: [0, 0, 0, 1],
       vectors: { 2: "0, 1/6" },
@@ -464,6 +474,21 @@
       osEntry: 56, profile: "IV", P: "10", Q: "3", weights: [0, 0, 0, 1],
       vectors: { 2: "0, 1/3" },
       label: "OS56: I₅ + I₂ + IV + I₁, with the full-order twist at IV. Press “Compute topology”.",
+    },
+    "os56-iii-p15": {
+      osEntry: 56, profile: "III", P: "15", Q: "2", weights: [0, 0, 0, 1],
+      vectors: { 2: "0, 1/4" },
+      label: "OS56: P = 15G, Q = 2G, with the full order-four twist at III. Press “Compute topology”.",
+    },
+    "os56-iii-p30": {
+      osEntry: 56, profile: "III", P: "30", Q: "1", smoothSlots: 1,
+      weights: [0, 0, 0, 1, 0], vectors: { 4: "0, 0, 0, 1" },
+      label: "OS56: P = 30G, Q = G, with original singular fillings and primitive integral clutching at the added smooth fiber. Press “Compute topology”.",
+    },
+    "os56-iv-p30": {
+      osEntry: 56, profile: "IV", P: "30", Q: "1", smoothSlots: 1,
+      weights: [0, 0, 0, 1, 0], vectors: { 4: "0, 0, 0, 1" },
+      label: "OS56: P = 30G, Q = G, with the original filling at IV and primitive integral clutching at the added smooth fiber. Press “Compute topology”.",
     },
   };
   for (const [entry, multiple] of [[45, 8], [47, 14], [55, 20], [56, 30]]) {
