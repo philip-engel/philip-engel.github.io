@@ -72,9 +72,9 @@ input:focus, select:focus, button:focus-visible, summary:focus-visible { outline
 .example-actions .button.ghost { min-height: 36px; }
 .example-actions label { min-width: 260px; }
 .example-actions { align-items: end; row-gap: 14px; }
-.random-example { grid-column: 1 / -1; justify-self: start; max-width: 100%; }
+.random-example { grid-column: 1 / -1; justify-self: start; max-width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .random-example .button { white-space: normal; text-align: left; }
-.random-example small { display: block; margin-top: 4px; color: var(--muted); font-style: italic; }
+.random-example small { color: var(--muted); font-size: .95rem; font-style: italic; }
 .basis-help { overflow-wrap: anywhere; font-size: .8rem; }
 .basis-help code { white-space: normal; }
 .button:disabled { cursor: wait; opacity: .62; }
