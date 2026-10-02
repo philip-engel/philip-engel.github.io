@@ -188,9 +188,10 @@ def log_transforms(os_entry, P, Q, linearization_divisor, log_data=None, *,
     None selects the original bundle (or the prescribed Mumford filling).
     At a potentially good fiber an explicit vector, INCLUDING zero, selects
     the resolved good-reduction quotient. Integer parts are retained.
-    At semistable fibers vectors specify integral clutching of the prescribed
-    semistable/Mumford filling. Positive-index starred quotient models remain
-    subject to their separate coverage checks.
+    At I0 with weight zero, every rational vector is allowed: its exact
+    denominator is the multiplicity of the isogenous torus filling.
+    Other fibers retain m | d; semistable/Mumford fillings therefore permit
+    only integral clutching. Integer parts are never reduced modulo one.
     """
     matrices = monodromy_tuple(os_entry, P, Q, linearization_divisor,
                                profile=profile, verbose=False)
@@ -220,12 +221,19 @@ def log_transforms(os_entry, P, Q, linearization_divisor, log_data=None, *,
         coordinates_in_basis = invariant_basis.solve_right(theta)
         denominator = int(_sage.lcm([x.denominator() for x in theta]))
         reduction_order = _reduction_order(kind)
-        if reduction_order % denominator:
+        smooth_log = kind == "I0" and weight == 0
+        if kind == "I0" and weight and denominator != 1:
+            raise ModificationNotTabulatedError(
+                "Fiber %d (I0): fractional smooth-fiber log transforms require "
+                "linearization weight 0. This slot has a Mumford filling; "
+                "add a separate I0 slot with weight 0 for the fractional twist."
+                % (i + 1))
+        if not smooth_log and reduction_order % denominator:
             raise ModificationNotTabulatedError(
                 "Fiber %d (%s): log torsion order m=%d does not divide the "
                 "minimal semistable-reduction degree d=%d. This modification "
-                "is not tabulated; the current scope requires m | d. Integral "
-                "clutching parameters remain allowed."
+                "is not tabulated; m | d is required except at smooth I0 "
+                "fibers with linearization weight 0. Integral clutching remains allowed."
                 % (i + 1, kind, denominator, reduction_order))
         cover_order = int(_sage.lcm(reduction_order, denominator))
         psi_index = int(_sage.gcd(list(invariant_basis[3])))
@@ -269,7 +277,7 @@ def log_transforms(os_entry, P, Q, linearization_divisor, log_data=None, *,
         print("Original divisor degree on O:", result['divisor_base_degree'],
               "| base-line clutch assigned to site", result['divisor_base_site'])
         print("Integer periods are retained: multiplicity-one clutching can change topology.")
-        print("Scope: log torsion order m divides the minimal reduction degree d at every site.")
+        print("Scope: any torsion order at I0 with weight 0; m divides the reduction degree d elsewhere.")
         print("Potentially-good fibers: None selects the original bundle; every explicit vector selects the good-reduction quotient, including zero.")
     return result
 
@@ -313,13 +321,30 @@ def _invariant_stalks(T):
     return {q: _kernel(_exterior(action, q) - 1) for q in range(5)}
 
 
-def _smooth_log_stalks(theta):
-    """H*(R^4/(Lambda+Z*theta)) -> H*(R^4/Lambda), including its integral index."""
+def smooth_log_lattice(theta):
+    """Exact marking of Lambda' = Z^4 + Z*theta, with full clutch retained.
+
+    Columns of L form a basis of Lambda'. A=L^-1 sends the original fiber
+    lattice into Z^4; b=A*theta is the image of the positive base meridian.
+    Thus [A | b]: Z^5 -> Z^4 is surjective, with primitive kernel (-m*theta,m).
+    The lattice is unchanged by integral shifts of theta; the meridian is not.
+    """
+    theta = _sage.vector(_sage.QQ, [_exact_rational(x) for x in theta])
+    if len(theta) != 4:
+        raise ValueError("A smooth log vector must have four ambient coordinates.")
     denominator = int(_sage.lcm([x.denominator() for x in theta]))
     generators = (denominator * _sage.identity_matrix(_sage.ZZ, 4)).augment(
         _columns([denominator * theta], 4))
     lattice = _lattice_basis(generators) / denominator
-    pullback = _sage.matrix(_sage.ZZ, lattice.inverse().transpose())
+    inclusion = _sage.matrix(_sage.ZZ, lattice.inverse())
+    meridian = _sage.vector(_sage.ZZ, inclusion * theta)
+    return dict(multiplicity=denominator, lattice_basis=lattice,
+                fiber_inclusion=inclusion, meridian_image=meridian)
+
+
+def _smooth_log_stalks(theta):
+    """H*(R^4/(Lambda+Z*theta)) -> H*(R^4/Lambda), including its integral index."""
+    pullback = smooth_log_lattice(theta)['fiber_inclusion'].transpose()
     return {q: _exterior(pullback, q) for q in range(5)}
 
 

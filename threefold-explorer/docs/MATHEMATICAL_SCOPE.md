@@ -16,7 +16,8 @@ The API reports the specific fibers where neither section is narrow.
 - Linearization zeros and poles lie on I_k fibers, including added smooth I0.
   All nonzero weights have one sign and sum to the height pairing of P and Q.
 - Log vectors are exact rational vectors fixed by the 4×4 monodromy, with
-  torsion order dividing the minimal semistable-reduction degree.
+  torsion order dividing the minimal semistable-reduction degree, except at
+  smooth I0 fibers of linearization weight zero, where every order is allowed.
 - Mumford compactifications use the prescribed A2 tiling or rank-one wheel.
   Every component class satisfying the section condition is tabulated for
   I0 through I9, with max(1,k) times the absolute weight at most 12.
@@ -38,6 +39,26 @@ smooth fiber has torsion order one and fiber multiplicity one, while its
 clutching can change the topology. The four semistable sphere presets use
 this modification in the quotient direction.
 
+## Fractional logs at smooth fibers
+
+At an I0 slot with linearization weight zero, enter any exact rational vector
+theta. Its least common denominator m is the fiber multiplicity; the reduction
+is the isogenous complex torus with lattice Lambda' = Lambda + Z theta.
+The filling retracts onto this torus. Its cochain ranks are (1,4,6,4,1), with
+zero differentials, independently of m. No denominator-specific model is stored.
+
+If L is a basis matrix for Lambda', the boundary homomorphism on fundamental
+groups is (u,k) -> L^-1 (u + k theta). Its primitive kernel is (-m theta,m).
+An integral normal-circle completion gives the boundary comparison; exterior
+powers give all cochain maps. In the base-first convention the filling map
+is [wedge^q(L^-t); i_theta wedge^q(L^-t)]. Van Kampen uses the relation
+meridian^m = fiber^(m theta). The full integer lift of theta affects these maps.
+
+This extension does not allow fractional twists at an I0 slot with nonzero
+linearization weight: that slot has a Mumford degeneration. Add a separate
+weight-zero I0 slot instead. The API schema reports `arbitrary_denominators`
+and sets `allowable_denominators` to null at the new smooth log sites.
+
 ## Results
 
 Every integral cohomology group H0 through H6 is computed from the MV cone.
@@ -53,7 +74,8 @@ Mumford compactification retains the assumptions of the underlying construction.
 
 - Both P and Q non-narrow at the same singular fiber.
 - Torsion twists fixed only modulo the lattice.
-- Log order not dividing the semistable-reduction degree.
+- Log order not dividing the semistable-reduction degree at singular or
+  Mumford fibers (the weight-zero smooth exception is described above).
 - Linearization zeros or poles on additive fibers.
 - Other Mumford subdivisions or models beyond the stated bounds.
 - General recognition of every finitely presented fundamental group.

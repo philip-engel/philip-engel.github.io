@@ -200,11 +200,11 @@ try:
 except ValueError as error:
     assert 'allowed number of components (12)' in str(error)
 else: raise AssertionError('The form schema accepted an oversized Mumford filling')
-try:
-    compute(dict(os_entry=56,P=[30],Q=[1],linearization_divisor=[0,0,0,0,1,0],
-                 log_data=[None]*5+[[0,0,0,'1/2']],coordinates='ambient'))
-except top.ModificationNotTabulatedError as error:
-    assert 'does not divide' in str(error)
-else: raise AssertionError('Higher-order smooth twisting was accepted')
+fractional = compute(dict(os_entry=56,P=[30],Q=[1],linearization_divisor=[0,0,0,0,1,0],
+    log_data=[None]*5+[[0,0,0,'1/2']],coordinates='ambient'))
+assert fractional['fundamental_group']['trivial']
+assert [g['label'] for g in fractional['cohomology']] == [
+    'Z','0','0','Z/2 + Z/2','Z/2 + Z/2','0','Z']
+assert fractional['local_models'][-1]['fiber_multiplicity'] == 2
 
 print('PASS: 865 read-only models; all bounded component classes; old and new S6 examples; mixed narrowness; validation')

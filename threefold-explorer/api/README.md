@@ -24,6 +24,14 @@ attachment formula tables. Ship the archive and engine modules together:
 integral marking and clutching maps. A warm worker caches decoded records;
 requests do not build local models or compile formula tables.
 
+Weight-zero smooth I0 slots accept fractional log vectors of any torsion
+order. They reuse the smooth torus record with an exact integral boundary
+marking; the archive does not grow with the denominator. `/api/log-schema`
+reports `arbitrary_denominators: true` and `allowable_denominators: null`
+for these sites. Fractional twists on Mumford or other singular fibers remain
+subject to the existing scope. Run `tests/smooth_logs_test.py` with Sage for
+the local lattice identities and the single/coprime double-twist regressions.
+
 Run `sage -python tests/worker_bundle_test.py` to check the shipped archive in
 an isolated temporary directory through the persistent worker protocol. Run
 `sage -python tests/smoke_test.py` to check the expanded database, and

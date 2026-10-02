@@ -68,6 +68,17 @@ with tempfile.TemporaryDirectory(prefix='threefold-bundle-') as temporary:
             linearization_divisor=[0,0,1], log_data=[['0','1/3'],['0','1/4'],None],
             coordinates='invariant'))
         assert original['S6_for_supplied_smooth_model']
+        smooth_payload = dict(os_entry=56, P=[30], Q=[1],
+            linearization_divisor=[0,0,0,0,1,0],
+            log_data=[None]*5+[[0,0,0,'1/2']], coordinates='ambient')
+        smooth_schema = request('/api/log-schema', smooth_payload)
+        assert smooth_schema['sites'][-1]['arbitrary_denominators'] is True
+        assert smooth_schema['sites'][-1]['allowable_denominators'] is None
+        fractional = request('/api/compute', smooth_payload)
+        assert fractional['fundamental_group']['trivial']
+        assert [g['label'] for g in fractional['cohomology']] == [
+            'Z','0','0','Z/2 + Z/2','Z/2 + Z/2','0','Z']
+        assert fractional['local_models'][-1]['fiber_multiplicity'] == 2
         error = request('/api/sections', dict(os_entry=56,P=[1],Q=[1]), 422)
         assert 'Neither is narrow' in error['error']
         request('/api/missing', {}, 404)

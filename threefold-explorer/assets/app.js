@@ -284,8 +284,13 @@
     const ambient = $("#coordinates").value === "ambient";
     $("#log-row").innerHTML = schema.sites.map((site) => {
       const count = ambient ? 4 : site.coordinate_count;
-      const basis = ambient ? "Coordinates in (e₁,e₂,δ,c)." :
-        `${site.coordinate_count}-dimensional invariant lattice; allowed denominators divide ${site.reduction_order}.`;
+      const orderHelp = site.arbitrary_denominators ?
+        "Any torsion order is allowed at this smooth fiber." :
+        `Allowed denominators divide ${site.reduction_order}.`;
+      const mumfordHelp = site.type === "I0" && site.weight !== 0 ?
+        " This slot has a Mumford filling. For a fractional twist, add a separate smooth slot with weight 0." : "";
+      const basis = (ambient ? "Coordinates in (e₁,e₂,δ,c)." :
+        `${site.coordinate_count}-dimensional invariant lattice.`) + ` ${orderHelp}${mumfordHelp}`;
       const columns = Array.from({length: site.coordinate_count}, (_, j) =>
         `v${j+1} = (${site.invariant_basis.map((row) => row[j]).join(", ")})`);
       return `<article class="log-card" data-index="${site.index - 1}" data-count="${count}">
@@ -357,7 +362,9 @@
       }
       return "Original filling determined by O(P−O), with no good-reduction substitution.";
     }
-    if (model.family === "smooth_product") return "Smooth T⁴ filling over a disk.";
+    if (model.family === "smooth_product") return multiplicity > 1 ?
+      `Non-reduced fiber of multiplicity ${multiplicity}, with reduction a complex 2-torus.` :
+      "Smooth T⁴ filling over a disk.";
     return model.geometry || "";
   }
 
@@ -393,7 +400,7 @@
     ).join("");
     $("#local-models").innerHTML = result.local_models.map((model) =>
       `<div class="model-row"><span>${model.index}</span><b>${model.type}</b><div class="model-copy">
-        <span>${model.family.replaceAll("_", " ")}</span>
+        <span>${model.family === "smooth_product" && model.fiber_multiplicity > 1 ? "multiple torus" : model.family.replaceAll("_", " ")}</span>
         <small>${localGeometryDescription(model)}</small>
       </div></div>`
     ).join("");

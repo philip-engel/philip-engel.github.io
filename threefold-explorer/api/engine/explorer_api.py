@@ -180,12 +180,16 @@ def log_transform_schema(os_entry, P, Q, linearization_divisor, profile='default
     _check_bounds(data)
     sites = []
     for site in data['sites']:
+        smooth_log = site['type'] == 'I0' and site['weight'] == 0
         sites.append(dict(index=site['index'], type=site['type'], weight=site['weight'],
             coordinate_count=site['invariant_rank'],
             invariant_basis=_matrix_rows(site['invariant_basis']),
             reduction_order=site['reduction_order'], psi_index=site['psi_index'],
-            allowable_denominators=[d for d in range(1, site['reduction_order']+1)
-                                    if site['reduction_order'] % d == 0],
+            arbitrary_denominators=smooth_log,
+            allowable_denominators=(None if smooth_log else
+                [d for d in range(1, site['reduction_order']+1) if site['reduction_order'] % d == 0]),
+            denominator_rule=('Any positive denominator; multiple isogenous torus filling'
+                if smooth_log else 'The exact denominator must divide the semistable reduction degree'),
             P_narrow=site['P_narrow'], Q_narrow=site['Q_narrow'],
             none_meaning='Original filling' if not site['weight'] else 'Mumford filling with zero added clutching',
             zero_meaning=('Same filling as None' if site['P_narrow'] or re.fullmatch(r'I[0-9]+', site['type'])
