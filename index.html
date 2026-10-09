@@ -507,6 +507,23 @@ document.getElementById("my_text31").innerText = "[+]";
 </script>
 
 <script language="javaScript">
+function showHideText32()
+{
+if (document.getElementById("div_text32").className == "div_hide")
+{
+document.getElementById("div_text32").className = "div_show";
+document.getElementById("my_text32").innerText = "[-]";
+}
+else
+{
+
+document.getElementById("div_text32").className = "div_hide";
+document.getElementById("my_text32").innerText = "[+]";
+}
+}
+</script>
+
+<script language="javaScript">
 function showHideText26()
 {
 if (document.getElementById("div_text26").className == "div_hide")
@@ -681,13 +698,29 @@ about Hurwitz theory. You can find a
 
 <ul>
 
+<li> <a href="https://arxiv.org/abs/2610.12277">Hyperkähler SYZ conjecture</a>.</li>
+<ul> 2026. <a id="my_text32" href="javaScript:showHideText32()">[+]</a>
+</ul>
+
+<ul><div id="div_text32" class="div_hide">
+<span style="font-size:0.99em">
+We prove the hyperkähler SYZ conjecture: the sections of some power of a non-trivial nef 
+isotropic line bundle define a Lagrangian fibration.</span>
+</div>
+</ul>
+</br>
+
 <li> <a href="https://philip-engel.github.io/threefold-explorer/">Threefold Explorer</a>.</li>
 <ul> 2026. <a id="my_text31" href="javaScript:showHideText31()">[+]</a>
 </ul>
 
 <ul><div id="div_text31" class="div_hide">
 <span style="font-size:0.99em">
-This is an interactive SageMath applet for exploring compact complex threefolds constructed from rational elliptic surfaces. Preloaded examples include the constructions of Alpöge–Claude, myself, Viaclovsky, and Liu–Rollenske, together with some interesting new deformation classes of complex structures on the six dimensional sphere. Code and documentation are available through the applet with more details available by private communication.
+This is an interactive SageMath applet for exploring compact complex threefolds 
+	constructed from rational elliptic surfaces. Preloaded examples include the constructions of 
+	Alpöge–Claude, myself, Viaclovsky, and Liu–Rollenske, together with some interesting new deformation 
+	classes of complex structures on the six dimensional sphere. Code and documentation are available 
+	through the applet with more details available by private communication.
 </span>
 </div>
 </ul>
